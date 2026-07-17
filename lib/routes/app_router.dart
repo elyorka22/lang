@@ -20,6 +20,7 @@ import '../features/games/presentation/screens/picture_words_levels_screen.dart'
 import '../features/games/presentation/screens/picture_words_play_screen.dart';
 import '../features/games/presentation/screens/quest_chat_screen.dart';
 import '../features/games/presentation/screens/quest_levels_screen.dart';
+import '../features/goal_map/presentation/screens/goal_map_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/learning/presentation/screens/learning_screen.dart';
 import '../features/memorizer/presentation/screens/memorizer_screen.dart';
@@ -99,32 +100,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/discover',
-                builder: (_, __) => const DiscoverScreen(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
                 path: '/chats',
                 builder: (_, __) => const ChatsScreen(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/saves',
-                builder: (_, __) => const MemorizerScreen(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/games',
-                builder: (_, __) => const GamesHubScreen(),
               ),
             ],
           ),
@@ -137,6 +114,22 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: '/goal-map',
+        builder: (_, __) => const GoalMapScreen(),
+      ),
+      GoRoute(
+        path: '/discover',
+        builder: (_, __) => const DiscoverScreen(),
+      ),
+      GoRoute(
+        path: '/saves',
+        builder: (_, __) => const MemorizerScreen(),
+      ),
+      GoRoute(
+        path: '/games',
+        builder: (_, __) => const GamesHubScreen(),
       ),
       GoRoute(
         path: '/games/flashcards',

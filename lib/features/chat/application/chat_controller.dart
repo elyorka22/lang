@@ -189,6 +189,15 @@ class ChatRoomState {
     if (peer?.id == senderId) return peer!.displayName;
     return 'Member';
   }
+
+  UserProfile? senderProfile(String senderId) {
+    if (senderId == 'me' || senderId == 'system') return null;
+    for (final m in members) {
+      if (m.id == senderId) return m;
+    }
+    if (peer?.id == senderId) return peer;
+    return null;
+  }
 }
 
 final chatRoomProvider = StateNotifierProvider.family<ChatRoomController,

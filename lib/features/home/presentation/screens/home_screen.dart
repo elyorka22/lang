@@ -8,9 +8,11 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../features/auth/application/auth_controller.dart';
+import '../../../../shared/models/goal_map.dart';
 import '../../../../shared/widgets/app_avatar.dart';
 import '../../../../shared/widgets/loading_view.dart';
 import '../../../../shared/widgets/section_header.dart';
+import '../../../goal_map/application/goal_map_controller.dart';
 import '../../application/home_controller.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -80,10 +82,60 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
               SliverToBoxAdapter(
-                child: _DailyGoalCard(progress: home.goal.overallProgress)
+                child: _DailyGoalCard(
+                  progress: home.goal.overallProgress,
+                  goalMap: ref.watch(goalMapControllerProvider).plan,
+                  onTap: () => context.push('/goal-map'),
+                )
                     .animate()
                     .fadeIn()
                     .slideY(begin: 0.08, end: 0),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                  child: Text(
+                    'Explore',
+                    style: context.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _ExploreShortcut(
+                          icon: Icons.explore_outlined,
+                          label: 'Discover',
+                          color: AppColors.secondary,
+                          onTap: () => context.push('/discover'),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _ExploreShortcut(
+                          icon: Icons.bookmark_border_rounded,
+                          label: 'Saves',
+                          color: AppColors.accent,
+                          onTap: () => context.push('/saves'),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _ExploreShortcut(
+                          icon: Icons.sports_esports_outlined,
+                          label: 'Games',
+                          color: AppColors.primary,
+                          onTap: () => context.push('/games'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
               const SectionHeader(title: 'Continue learning').asSliver,
               SliverToBoxAdapter(
@@ -98,7 +150,7 @@ class HomeScreen extends ConsumerWidget {
                         title: 'Games',
                         subtitle: 'Quests & cards',
                         color: AppColors.primary,
-                        onTap: () => context.go('/games'),
+                        onTap: () => context.push('/games'),
                       ),
                       _ContinueCard(
                         icon: Icons.style_outlined,
@@ -128,7 +180,7 @@ class HomeScreen extends ConsumerWidget {
               SectionHeader(
                 title: 'AI suggestions',
                 actionLabel: 'Games',
-                onAction: () => context.go('/games'),
+                onAction: () => context.push('/games'),
               ).asSliver,
               SliverToBoxAdapter(
                 child: SizedBox(
@@ -153,7 +205,7 @@ class HomeScreen extends ConsumerWidget {
               SectionHeader(
                 title: 'Online now',
                 actionLabel: 'Discover',
-                onAction: () => context.go('/discover'),
+                onAction: () => context.push('/discover'),
               ).asSliver,
               SliverToBoxAdapter(
                 child: SizedBox(
@@ -197,7 +249,7 @@ class HomeScreen extends ConsumerWidget {
               SectionHeader(
                 title: 'Recommended friends',
                 actionLabel: 'See all',
-                onAction: () => context.go('/discover'),
+                onAction: () => context.push('/discover'),
               ).asSliver,
               SliverList.builder(
                 itemCount: home.recommended.length,
@@ -327,70 +379,151 @@ class HomeScreen extends ConsumerWidget {
 }
 
 class _DailyGoalCard extends StatelessWidget {
-  const _DailyGoalCard({required this.progress});
+  const _DailyGoalCard({
+    required this.progress,
+    required this.onTap,
+    this.goalMap,
+  });
+
   final double progress;
+  final VoidCallback onTap;
+  final GoalMapPlan? goalMap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: AppColors.brandGradientSoft,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+    final mapProgress = goalMap?.levelProgress;
+    final shown = mapProgress ?? progress;
+    final title = goalMap == null ? 'Daily goal' : 'Goal Map';
+    final subtitle = goalMap == null
+        ? 'Tap to set a level goal by date — we track you every day.'
+        : 'Lv ${goalMap!.startLevel}→${goalMap!.targetLevel} · ${goalMap!.daysLeft}d left · ${goalMap!.todayDone ? 'Today ✓' : 'Log today'}';
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withOpacity(0.28),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          CircularPercentIndicator(
-            radius: 36,
-            lineWidth: 7,
-            percent: progress,
-            animation: true,
-            circularStrokeCap: CircularStrokeCap.round,
-            backgroundColor: Colors.white24,
-            progressColor: Colors.white,
-            center: Text(
-              '${(progress * 100).round()}%',
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-                fontSize: 13,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: AppColors.brandGradientSoft,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withOpacity(0.28),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
               ),
-            ),
+            ],
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Daily goal',
-                  style: context.textTheme.titleMedium?.copyWith(
+          child: Row(
+            children: [
+              CircularPercentIndicator(
+                radius: 36,
+                lineWidth: 7,
+                percent: shown.clamp(0.0, 1.0),
+                animation: true,
+                circularStrokeCap: CircularStrokeCap.round,
+                backgroundColor: Colors.white24,
+                progressColor: Colors.white,
+                center: Text(
+                  '${(shown * 100).round()}%',
+                  style: const TextStyle(
                     color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  'Keep your streak alive — a few minutes left today.',
-                  style: context.textTheme.bodySmall?.copyWith(
-                    color: Colors.white.withOpacity(0.9),
-                  ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          title,
+                          style: context.textTheme.titleMedium?.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
+                        const Spacer(),
+                        Icon(
+                          Icons.chevron_right,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: context.textTheme.bodySmall?.copyWith(
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ExploreShortcut extends StatelessWidget {
+  const _ExploreShortcut({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: context.isDark
+          ? AppColors.surfaceElevatedDark
+          : AppColors.surfaceElevated,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          child: Column(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.14),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: color),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                label,
+                style: context.textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

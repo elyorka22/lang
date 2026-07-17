@@ -43,6 +43,13 @@ class LocalStorageService {
   bool get isGuest => _settings.get('guest', defaultValue: false) as bool;
   Future<void> setGuest(bool value) => _settings.put('guest', value);
 
+  // Goal map (long-term level goal)
+  String? get goalMapJson => _settings.get('goalMap') as String?;
+  Future<void> setGoalMapJson(String? json) {
+    if (json == null) return _settings.delete('goalMap');
+    return _settings.put('goalMap', json);
+  }
+
   // Cache helpers
   Future<void> putCache(String key, dynamic value) => _cache.put(key, value);
   T? getCache<T>(String key) => _cache.get(key) as T?;

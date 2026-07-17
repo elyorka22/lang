@@ -54,23 +54,11 @@ class GroupInfoScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
           Center(
-            child: Container(
-              width: 96,
-              height: 96,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                gradient:
-                    const LinearGradient(colors: AppColors.brandGradientSoft),
-                borderRadius: BorderRadius.circular(28),
-              ),
-              child: Text(
-                group.displayTitle.initials,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 32,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+            child: AppAvatar(
+              name: group.displayTitle,
+              url: group.avatarUrl,
+              size: 96,
+              isGroup: true,
             ),
           ),
           const SizedBox(height: 12),

@@ -26,7 +26,7 @@ class ChatsScreen extends ConsumerWidget {
             icon: const Icon(Icons.group_add_outlined),
           ),
           IconButton(
-            onPressed: () => context.go('/discover'),
+            onPressed: () => context.push('/discover'),
             icon: const Icon(Icons.person_add_alt_1_outlined),
           ),
         ],
@@ -70,7 +70,12 @@ class ChatsScreen extends ConsumerWidget {
                 return ListTile(
                   onTap: () => context.push('/chat/${c.id}'),
                   leading: c.isGroup
-                      ? _GroupAvatar(title: c.displayTitle)
+                      ? AppAvatar(
+                          name: c.displayTitle,
+                          url: c.avatarUrl,
+                          size: 52,
+                          isGroup: true,
+                        )
                       : AppAvatar(
                           name: c.peer?.displayName ?? '?',
                           url: c.peer?.avatarUrl,
@@ -80,18 +85,12 @@ class ChatsScreen extends ConsumerWidget {
                         ),
                   title: Row(
                     children: [
-                      if (c.isGroup) ...[
-                        const Icon(
-                          Icons.groups_rounded,
-                          size: 16,
-                          color: AppColors.primary,
-                        ),
-                        const SizedBox(width: 6),
-                      ],
                       Expanded(
                         child: Text(
                           c.displayTitle,
-                          style: context.textTheme.titleSmall,
+                          style: context.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -167,12 +166,12 @@ class ChatsScreen extends ConsumerWidget {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.person_search_outlined),
-                title: const Text('Find people'),
-                subtitle: const Text('Discover language partners'),
+                leading: const Icon(Icons.groups_outlined),
+                title: const Text('Find groups'),
+                subtitle: const Text('Discover practice chats by language'),
                 onTap: () {
                   Navigator.pop(ctx);
-                  context.go('/discover');
+                  context.push('/discover');
                 },
               ),
               const SizedBox(height: 8),
@@ -180,33 +179,6 @@ class ChatsScreen extends ConsumerWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class _GroupAvatar extends StatelessWidget {
-  const _GroupAvatar({required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 52,
-      height: 52,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: AppColors.brandGradientSoft),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        title.initials,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w700,
-          fontSize: 16,
-        ),
-      ),
     );
   }
 }

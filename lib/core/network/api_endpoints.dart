@@ -90,6 +90,7 @@ class ApiEndpoints {
 
   // Learning
   static const String dailyGoal = '/learning/daily-goal';
+  static const String goalMap = '/learning/goal-map';
   static const String stats = '/learning/stats';
   static const String achievements = '/learning/achievements';
   static const String leaderboard = '/learning/leaderboard';
