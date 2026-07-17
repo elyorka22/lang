@@ -51,10 +51,12 @@ class AppShell extends StatelessWidget {
               label: 'Saves',
             ),
             NavigationDestination(
-              icon: const Icon(Icons.smart_toy_outlined),
-              selectedIcon:
-                  Icon(Icons.smart_toy_rounded, color: AppColors.primary),
-              label: 'AI',
+              icon: const Icon(Icons.sports_esports_outlined),
+              selectedIcon: Icon(
+                Icons.sports_esports_rounded,
+                color: AppColors.primary,
+              ),
+              label: 'Games',
             ),
             NavigationDestination(
               icon: const Icon(Icons.person_outline_rounded),

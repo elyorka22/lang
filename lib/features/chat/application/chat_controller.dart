@@ -35,6 +35,18 @@ class ConversationsController extends StateNotifier<List<ChatConversation>> {
     return null;
   }
 
+  /// Make a discoverable group available in the inbox / chat room.
+  void ensureGroup(ChatConversation group) {
+    if (!group.isGroup) return;
+    if (byId(group.id) != null) return;
+    final withMe = group.members.any((m) => m.id == 'me')
+        ? group
+        : group.copyWith(
+            members: [MockData.currentUser, ...group.members],
+          );
+    state = [withMe, ...state];
+  }
+
   /// Create a Telegram-style group and open it from the inbox.
   Future<ChatConversation> createGroup({
     required String title,

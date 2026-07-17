@@ -21,13 +21,13 @@ class VocabularyScreen extends ConsumerWidget {
         title: const Text('Vocabulary'),
         actions: [
           IconButton(
-            onPressed: () => context.push('/vocabulary/flashcards'),
+            onPressed: () => context.push('/games/flashcards'),
             icon: const Icon(Icons.style_outlined),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/vocabulary/flashcards'),
+        onPressed: () => context.push('/games/flashcards'),
         icon: const Icon(Icons.play_arrow_rounded),
         label: const Text('Review'),
       ),

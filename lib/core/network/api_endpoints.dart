@@ -69,11 +69,20 @@ class ApiEndpoints {
   static const String aiQuiz = '/ai/quiz';
   static const String aiRoleplay = '/ai/roleplay';
 
+  // Games
+  static const String gamesProgress = '/games/progress';
+  static const String gamesQuests = '/games/quests';
+  static String gamesQuest(String id) => '/games/quests/$id';
+  static String gamesQuestComplete(String id) => '/games/quests/$id/complete';
+  static const String gamesQuestChat = '/games/quests/chat';
+  static const String pictureWords = '/games/picture-words';
+  static String pictureWordLevel(String id) => '/games/picture-words/$id';
+
   // Vocabulary
   static const String vocabulary = '/vocabulary';
   static String vocabItem(String id) => '/vocabulary/$id';
   static const String vocabReview = '/vocabulary/review';
-  static const String flashcards = '/vocabulary/flashcards';
+  static const String flashcards = '/games/flashcards';
 
   // Запоминалка (clips from chat)
   static const String memorizer = '/memorizer';

@@ -133,6 +133,8 @@ class MockData {
         description: 'Daily speaking practice — A2 to B2',
         members: [currentUser, users[0], users[3], users[4]],
         adminIds: const ['me', 'u1'],
+        languageCodes: const ['es'],
+        flagCountryCode: 'ES',
         unreadCount: 5,
         updatedAt: now.subtract(const Duration(minutes: 1)),
         lastMessage: ChatMessage(
@@ -167,6 +169,8 @@ class MockData {
         description: 'EN · ES · FR · DE — casual chat',
         members: [currentUser, users[0], users[1], users[2], users[3]],
         adminIds: const ['me'],
+        languageCodes: const ['en', 'es', 'fr', 'de'],
+        flagCountryCode: 'EU',
         unreadCount: 0,
         updatedAt: now.subtract(const Duration(hours: 5)),
         lastMessage: ChatMessage(
@@ -210,6 +214,176 @@ class MockData {
         ),
       ),
     ];
+  }
+
+  /// Public practice groups for Discover (filter by language / country flag).
+  static List<ChatConversation> discoverGroups() {
+    final now = DateTime.now();
+    final inboxGroups =
+        conversations().where((c) => c.isGroup).toList(growable: false);
+    final extra = <ChatConversation>[
+      ChatConversation(
+        id: 'dg_de1',
+        type: ConversationType.group,
+        title: 'Deutsch Stammtisch',
+        description: 'Casual German evenings — B1+',
+        members: [currentUser, users[1], users[0]],
+        adminIds: const ['u2'],
+        languageCodes: const ['de'],
+        flagCountryCode: 'DE',
+        updatedAt: now.subtract(const Duration(minutes: 20)),
+        lastMessage: ChatMessage(
+          id: 'dgm1',
+          conversationId: 'dg_de1',
+          senderId: 'u2',
+          type: MessageType.text,
+          text: 'Wer kommt heute Abend?',
+          createdAt: now.subtract(const Duration(minutes: 20)),
+          status: MessageStatus.delivered,
+        ),
+      ),
+      ChatConversation(
+        id: 'dg_fr1',
+        type: ConversationType.group,
+        title: 'Café Français',
+        description: 'French only · corrections welcome',
+        members: [users[3], users[0], users[4]],
+        adminIds: const ['u4'],
+        languageCodes: const ['fr'],
+        flagCountryCode: 'FR',
+        updatedAt: now.subtract(const Duration(hours: 1)),
+        lastMessage: ChatMessage(
+          id: 'dgm2',
+          conversationId: 'dg_fr1',
+          senderId: 'u4',
+          type: MessageType.text,
+          text: 'On parle de voyage demain ✈️',
+          createdAt: now.subtract(const Duration(hours: 1)),
+          status: MessageStatus.delivered,
+        ),
+      ),
+      ChatConversation(
+        id: 'dg_jp1',
+        type: ConversationType.group,
+        title: '日本語で話そう',
+        description: 'Japanese chat · beginners OK',
+        members: [users[2], users[1]],
+        adminIds: const ['u3'],
+        languageCodes: const ['ja'],
+        flagCountryCode: 'JP',
+        updatedAt: now.subtract(const Duration(hours: 3)),
+        lastMessage: ChatMessage(
+          id: 'dgm3',
+          conversationId: 'dg_jp1',
+          senderId: 'u3',
+          type: MessageType.text,
+          text: '今日もがんばりましょう！',
+          createdAt: now.subtract(const Duration(hours: 3)),
+          status: MessageStatus.delivered,
+        ),
+      ),
+      ChatConversation(
+        id: 'dg_pt1',
+        type: ConversationType.group,
+        title: 'Português do Brasil',
+        description: 'PT-BR daily chat & slang',
+        members: [users[4], users[0], users[3]],
+        adminIds: const ['u5'],
+        languageCodes: const ['pt'],
+        flagCountryCode: 'BR',
+        updatedAt: now.subtract(const Duration(hours: 4)),
+        lastMessage: ChatMessage(
+          id: 'dgm4',
+          conversationId: 'dg_pt1',
+          senderId: 'u5',
+          type: MessageType.text,
+          text: 'Bora praticar juntos?',
+          createdAt: now.subtract(const Duration(hours: 4)),
+          status: MessageStatus.delivered,
+        ),
+      ),
+      ChatConversation(
+        id: 'dg_en1',
+        type: ConversationType.group,
+        title: 'English Fluency Club',
+        description: 'Debates, idioms, job English',
+        members: [currentUser, users[1], users[2], users[3]],
+        adminIds: const ['me'],
+        languageCodes: const ['en'],
+        flagCountryCode: 'GB',
+        updatedAt: now.subtract(const Duration(minutes: 45)),
+        lastMessage: ChatMessage(
+          id: 'dgm5',
+          conversationId: 'dg_en1',
+          senderId: 'u2',
+          type: MessageType.text,
+          text: 'Topic tonight: remote work',
+          createdAt: now.subtract(const Duration(minutes: 45)),
+          status: MessageStatus.delivered,
+        ),
+      ),
+      ChatConversation(
+        id: 'dg_es2',
+        type: ConversationType.group,
+        title: 'Viajes en Español',
+        description: 'Travel Spanish · hotels, food, directions',
+        members: [users[0], users[4], currentUser],
+        adminIds: const ['u1'],
+        languageCodes: const ['es'],
+        flagCountryCode: 'ES',
+        updatedAt: now.subtract(const Duration(hours: 6)),
+        lastMessage: ChatMessage(
+          id: 'dgm6',
+          conversationId: 'dg_es2',
+          senderId: 'u1',
+          type: MessageType.text,
+          text: '¿Quién reserva hotel esta semana?',
+          createdAt: now.subtract(const Duration(hours: 6)),
+          status: MessageStatus.delivered,
+        ),
+      ),
+      ChatConversation(
+        id: 'dg_it1',
+        type: ConversationType.group,
+        title: 'Italiano Facile',
+        description: 'Italian A2–B1 practice',
+        members: [users[3], users[0]],
+        adminIds: const ['u4'],
+        languageCodes: const ['it'],
+        flagCountryCode: 'IT',
+        updatedAt: now.subtract(const Duration(hours: 8)),
+        lastMessage: ChatMessage(
+          id: 'dgm7',
+          conversationId: 'dg_it1',
+          senderId: 'u4',
+          type: MessageType.text,
+          text: 'Ciao a tutti!',
+          createdAt: now.subtract(const Duration(hours: 8)),
+          status: MessageStatus.delivered,
+        ),
+      ),
+      ChatConversation(
+        id: 'dg_kr1',
+        type: ConversationType.group,
+        title: '한국어 연습',
+        description: 'Korean hangout · K-culture chat',
+        members: [users[2], users[1], users[4]],
+        adminIds: const ['u3'],
+        languageCodes: const ['ko'],
+        flagCountryCode: 'KR',
+        updatedAt: now.subtract(const Duration(hours: 10)),
+        lastMessage: ChatMessage(
+          id: 'dgm8',
+          conversationId: 'dg_kr1',
+          senderId: 'u3',
+          type: MessageType.text,
+          text: '오늘 뭐 할 거예요?',
+          createdAt: now.subtract(const Duration(hours: 10)),
+          status: MessageStatus.delivered,
+        ),
+      ),
+    ];
+    return [...inboxGroups, ...extra];
   }
 
   static List<ChatMessage> groupMessages(String conversationId) {
@@ -264,7 +438,7 @@ class MockData {
   }
 
   static List<ChatMessage> messagesFor(String conversationId) {
-    if (conversationId.startsWith('g')) {
+    if (conversationId.startsWith('g') || conversationId.startsWith('dg_')) {
       return groupMessages(conversationId);
     }
     final now = DateTime.now();

@@ -20,6 +20,8 @@ class ChatConversation extends Equatable {
     this.unreadCount = 0,
     this.updatedAt,
     this.isTyping = false,
+    this.languageCodes = const [],
+    this.flagCountryCode,
   });
 
   final String id;
@@ -34,6 +36,12 @@ class ChatConversation extends Equatable {
   final int unreadCount;
   final DateTime? updatedAt;
   final bool isTyping;
+
+  /// ISO-ish language codes for discover filters: es, de, fr, ja, pt, en…
+  final List<String> languageCodes;
+
+  /// Country code for circular flag (ES, DE, FR…).
+  final String? flagCountryCode;
 
   bool get isGroup => type == ConversationType.group;
 
@@ -59,6 +67,8 @@ class ChatConversation extends Equatable {
     int? unreadCount,
     bool? isTyping,
     DateTime? updatedAt,
+    List<String>? languageCodes,
+    String? flagCountryCode,
   }) {
     return ChatConversation(
       id: id,
@@ -73,6 +83,8 @@ class ChatConversation extends Equatable {
       unreadCount: unreadCount ?? this.unreadCount,
       updatedAt: updatedAt ?? this.updatedAt,
       isTyping: isTyping ?? this.isTyping,
+      languageCodes: languageCodes ?? this.languageCodes,
+      flagCountryCode: flagCountryCode ?? this.flagCountryCode,
     );
   }
 
@@ -85,5 +97,7 @@ class ChatConversation extends Equatable {
         isTyping,
         lastMessage,
         members.length,
+        languageCodes,
+        flagCountryCode,
       ];
 }

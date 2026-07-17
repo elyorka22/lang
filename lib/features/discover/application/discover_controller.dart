@@ -1,82 +1,124 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../shared/data/mock_data.dart';
-import '../../../shared/models/user_profile.dart';
+import '../../../shared/models/conversation.dart';
 
-class DiscoverFilters {
-  const DiscoverFilters({
-    this.nativeLanguage,
-    this.learningLanguage,
-    this.country,
-    this.level,
-    this.onlineOnly = false,
-    this.minAge,
-    this.maxAge,
-    this.interest,
+/// Circular language / country chip under Discover search.
+class LanguageFlagFilter {
+  const LanguageFlagFilter({
+    required this.id,
+    required this.flag,
+    required this.label,
+    required this.languageCode,
+    required this.countryCode,
   });
 
-  final String? nativeLanguage;
-  final String? learningLanguage;
-  final String? country;
-  final String? level;
-  final bool onlineOnly;
-  final int? minAge;
-  final int? maxAge;
-  final String? interest;
+  final String id;
+  final String flag;
+  final String label;
 
-  DiscoverFilters copyWith({
-    String? nativeLanguage,
-    String? learningLanguage,
-    String? country,
-    String? level,
-    bool? onlineOnly,
-    int? minAge,
-    int? maxAge,
-    String? interest,
-    bool clearNative = false,
-    bool clearLearning = false,
-  }) {
-    return DiscoverFilters(
-      nativeLanguage:
-          clearNative ? null : (nativeLanguage ?? this.nativeLanguage),
-      learningLanguage:
-          clearLearning ? null : (learningLanguage ?? this.learningLanguage),
-      country: country ?? this.country,
-      level: level ?? this.level,
-      onlineOnly: onlineOnly ?? this.onlineOnly,
-      minAge: minAge ?? this.minAge,
-      maxAge: maxAge ?? this.maxAge,
-      interest: interest ?? this.interest,
-    );
-  }
+  /// Matches [ChatConversation.languageCodes] (es, de…).
+  final String languageCode;
+  final String countryCode;
+
+  static const all = LanguageFlagFilter(
+    id: 'all',
+    flag: '🌐',
+    label: 'All',
+    languageCode: '',
+    countryCode: '',
+  );
+
+  static const filters = <LanguageFlagFilter>[
+    all,
+    LanguageFlagFilter(
+      id: 'es',
+      flag: '🇪🇸',
+      label: 'ES',
+      languageCode: 'es',
+      countryCode: 'ES',
+    ),
+    LanguageFlagFilter(
+      id: 'de',
+      flag: '🇩🇪',
+      label: 'DE',
+      languageCode: 'de',
+      countryCode: 'DE',
+    ),
+    LanguageFlagFilter(
+      id: 'fr',
+      flag: '🇫🇷',
+      label: 'FR',
+      languageCode: 'fr',
+      countryCode: 'FR',
+    ),
+    LanguageFlagFilter(
+      id: 'en',
+      flag: '🇬🇧',
+      label: 'EN',
+      languageCode: 'en',
+      countryCode: 'GB',
+    ),
+    LanguageFlagFilter(
+      id: 'pt',
+      flag: '🇧🇷',
+      label: 'PT',
+      languageCode: 'pt',
+      countryCode: 'BR',
+    ),
+    LanguageFlagFilter(
+      id: 'ja',
+      flag: '🇯🇵',
+      label: 'JA',
+      languageCode: 'ja',
+      countryCode: 'JP',
+    ),
+    LanguageFlagFilter(
+      id: 'it',
+      flag: '🇮🇹',
+      label: 'IT',
+      languageCode: 'it',
+      countryCode: 'IT',
+    ),
+    LanguageFlagFilter(
+      id: 'ko',
+      flag: '🇰🇷',
+      label: 'KO',
+      languageCode: 'ko',
+      countryCode: 'KR',
+    ),
+  ];
 }
 
 class DiscoverState {
   const DiscoverState({
-    this.users = const [],
-    this.filters = const DiscoverFilters(),
-    this.isGrid = false,
+    this.groups = const [],
+    this.selectedLanguageId = 'all',
     this.isLoading = false,
     this.query = '',
   });
 
-  final List<UserProfile> users;
-  final DiscoverFilters filters;
-  final bool isGrid;
+  final List<ChatConversation> groups;
+  final String selectedLanguageId;
   final bool isLoading;
   final String query;
 
+  LanguageFlagFilter get selectedFilter {
+    for (final f in LanguageFlagFilter.filters) {
+      if (f.id == selectedLanguageId) return f;
+    }
+    return LanguageFlagFilter.all;
+  }
+
   DiscoverState copyWith({
-    List<UserProfile>? users,
-    DiscoverFilters? filters,
-    bool? isGrid,
+    List<ChatConversation>? groups,
+    String? selectedLanguageId,
     bool? isLoading,
     String? query,
   }) {
     return DiscoverState(
-      users: users ?? this.users,
-      filters: filters ?? this.filters,
-      isGrid: isGrid ?? this.isGrid,
+      groups: groups ?? this.groups,
+      selectedLanguageId: selectedLanguageId ?? this.selectedLanguageId,
       isLoading: isLoading ?? this.isLoading,
       query: query ?? this.query,
     );
@@ -93,46 +135,52 @@ class DiscoverController extends StateNotifier<DiscoverState> {
 
   Future<void> load() async {
     state = state.copyWith(isLoading: true);
-    await Future<void>.delayed(const Duration(milliseconds: 250));
-    state = state.copyWith(users: _apply(MockData.users), isLoading: false);
-  }
-
-  void setQuery(String q) {
-    state = state.copyWith(query: q, users: _apply(MockData.users, q: q));
-  }
-
-  void setFilters(DiscoverFilters filters) {
+    await Future<void>.delayed(const Duration(milliseconds: 200));
     state = state.copyWith(
-      filters: filters,
-      users: _apply(MockData.users, filters: filters),
+      groups: _apply(MockData.discoverGroups()),
+      isLoading: false,
     );
   }
 
-  void toggleView() {
-    state = state.copyWith(isGrid: !state.isGrid);
+  void setQuery(String q) {
+    state = state.copyWith(
+      query: q,
+      groups: _apply(MockData.discoverGroups(), q: q),
+    );
   }
 
-  List<UserProfile> _apply(
-    List<UserProfile> source, {
+  void setLanguageFilter(String filterId) {
+    state = state.copyWith(
+      selectedLanguageId: filterId,
+      groups: _apply(
+        MockData.discoverGroups(),
+        languageId: filterId,
+      ),
+    );
+  }
+
+  List<ChatConversation> _apply(
+    List<ChatConversation> source, {
     String? q,
-    DiscoverFilters? filters,
+    String? languageId,
   }) {
-    final query = (q ?? state.query).toLowerCase();
-    final f = filters ?? state.filters;
-    return source.where((u) {
-      if (f.onlineOnly && u.status != OnlineStatus.online) return false;
-      if (f.nativeLanguage != null && u.nativeLanguage != f.nativeLanguage) {
-        return false;
+    final query = (q ?? state.query).toLowerCase().trim();
+    final langId = languageId ?? state.selectedLanguageId;
+    LanguageFlagFilter filter = LanguageFlagFilter.all;
+    for (final f in LanguageFlagFilter.filters) {
+      if (f.id == langId) filter = f;
+    }
+
+    return source.where((g) {
+      if (!g.isGroup) return false;
+      if (filter.languageCode.isNotEmpty) {
+        final codes = g.languageCodes.map((c) => c.toLowerCase()).toList();
+        if (!codes.contains(filter.languageCode)) return false;
       }
-      if (f.learningLanguage != null &&
-          !u.learningLanguages.any((l) => l.name == f.learningLanguage)) {
-        return false;
-      }
-      if (f.country != null && u.country != f.country) return false;
-      if (query.isNotEmpty &&
-          !u.displayName.toLowerCase().contains(query) &&
-          !u.username.toLowerCase().contains(query)) {
-        return false;
+      if (query.isNotEmpty) {
+        final title = (g.title ?? '').toLowerCase();
+        final desc = g.description.toLowerCase();
+        if (!title.contains(query) && !desc.contains(query)) return false;
       }
       return true;
     }).toList();

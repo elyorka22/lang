@@ -94,18 +94,18 @@ class HomeScreen extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     children: [
                       _ContinueCard(
-                        icon: Icons.smart_toy_outlined,
-                        title: 'AI Lesson',
-                        subtitle: 'Travel Spanish',
+                        icon: Icons.sports_esports_outlined,
+                        title: 'Games',
+                        subtitle: 'Quests & cards',
                         color: AppColors.primary,
-                        onTap: () => context.go('/ai'),
+                        onTap: () => context.go('/games'),
                       ),
                       _ContinueCard(
                         icon: Icons.style_outlined,
                         title: 'Flashcards',
                         subtitle: '${home.reviewCount} due',
                         color: AppColors.secondary,
-                        onTap: () => context.push('/vocabulary/flashcards'),
+                        onTap: () => context.push('/games/flashcards'),
                       ),
                       _ContinueCard(
                         icon: Icons.mic_none_rounded,
@@ -127,8 +127,8 @@ class HomeScreen extends ConsumerWidget {
               ),
               SectionHeader(
                 title: 'AI suggestions',
-                actionLabel: 'All',
-                onAction: () => context.go('/ai'),
+                actionLabel: 'Games',
+                onAction: () => context.go('/games'),
               ).asSliver,
               SliverToBoxAdapter(
                 child: SizedBox(
@@ -141,7 +141,7 @@ class HomeScreen extends ConsumerWidget {
                     itemBuilder: (_, i) {
                       return ActionChip(
                         label: Text(home.suggestions[i]),
-                        onPressed: () => context.go('/ai'),
+                        onPressed: () => context.push('/games/quests'),
                         backgroundColor: context.isDark
                             ? AppColors.surfaceElevatedDark
                             : AppColors.surface,

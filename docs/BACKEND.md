@@ -11,6 +11,7 @@ This Flutter client expects a NestJS API matching `lib/core/network/api_endpoint
 - `chat` — conversations, messages (cursor), Socket.IO gateway
 - `groups` — Telegram-style multi-member practice rooms
 - `social` — topic rooms, host tables (30m/4 seats), mentors, correction karma
+- `games` — flashcards entry, leveled AI quest chat, picture words (assoc. vocab), XP unlock
 - `media` — R2/Spaces presigned PUT URLs only
 - `ai` — chat, translate, grammar, explain, improve, pronounce, voice-analysis, lessons, quiz, roleplay (rate-limited)
 - `vocabulary` — CRUD + SRS scheduling

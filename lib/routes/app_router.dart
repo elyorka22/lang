@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../core/theme/app_colors.dart';
 import '../features/auth/application/auth_controller.dart';
 import '../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
@@ -16,6 +15,11 @@ import '../features/chat/presentation/screens/chats_screen.dart';
 import '../features/chat/presentation/screens/create_group_screen.dart';
 import '../features/chat/presentation/screens/group_info_screen.dart';
 import '../features/discover/presentation/screens/discover_screen.dart';
+import '../features/games/presentation/screens/games_hub_screen.dart';
+import '../features/games/presentation/screens/picture_words_levels_screen.dart';
+import '../features/games/presentation/screens/picture_words_play_screen.dart';
+import '../features/games/presentation/screens/quest_chat_screen.dart';
+import '../features/games/presentation/screens/quest_levels_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/learning/presentation/screens/learning_screen.dart';
 import '../features/memorizer/presentation/screens/memorizer_screen.dart';
@@ -119,8 +123,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/ai',
-                builder: (_, __) => const AiScreen(),
+                path: '/games',
+                builder: (_, __) => const GamesHubScreen(),
               ),
             ],
           ),
@@ -133,6 +137,34 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: '/games/flashcards',
+        builder: (_, __) => const FlashcardsScreen(),
+      ),
+      GoRoute(
+        path: '/games/quests',
+        builder: (_, __) => const QuestLevelsScreen(),
+      ),
+      GoRoute(
+        path: '/games/quests/:id',
+        builder: (_, state) => QuestChatScreen(
+          questId: state.pathParameters['id']!,
+        ),
+      ),
+      GoRoute(
+        path: '/games/picture-words',
+        builder: (_, __) => const PictureWordsLevelsScreen(),
+      ),
+      GoRoute(
+        path: '/games/picture-words/:id',
+        builder: (_, state) => PictureWordsPlayScreen(
+          levelId: state.pathParameters['id']!,
+        ),
+      ),
+      GoRoute(
+        path: '/ai',
+        builder: (_, __) => const AiScreen(),
       ),
       GoRoute(
         path: '/social',
@@ -193,7 +225,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/vocabulary/flashcards',
-        builder: (_, __) => const FlashcardsScreen(),
+        redirect: (_, __) => '/games/flashcards',
       ),
       GoRoute(
         path: '/ai/voice',

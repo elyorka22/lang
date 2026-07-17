@@ -3,11 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions.dart';
-import '../../../../shared/widgets/app_avatar.dart';
+import '../../../../shared/models/conversation.dart';
 import '../../../../shared/widgets/empty_state.dart';
+import '../../../../shared/widgets/safe_body.dart';
 import '../../application/discover_controller.dart';
+import '../../../chat/application/chat_controller.dart';
 
 class DiscoverScreen extends ConsumerWidget {
   const DiscoverScreen({super.key});
@@ -22,287 +23,238 @@ class DiscoverScreen extends ConsumerWidget {
         title: const Text('Discover'),
         actions: [
           IconButton(
-            tooltip: state.isGrid ? 'List' : 'Cards',
-            onPressed: ctrl.toggleView,
-            icon: Icon(state.isGrid ? Icons.view_list_rounded : Icons.grid_view_rounded),
-          ),
-          IconButton(
-            onPressed: () => _openFilters(context, ref),
-            icon: const Icon(Icons.tune_rounded),
+            tooltip: 'Create group',
+            onPressed: () => context.push('/groups/create'),
+            icon: const Icon(Icons.group_add_outlined),
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: TextField(
-              onChanged: ctrl.setQuery,
-              decoration: const InputDecoration(
-                hintText: 'Search by name or username',
-                prefixIcon: Icon(Icons.search),
+      body: SafeBody(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: TextField(
+                onChanged: ctrl.setQuery,
+                decoration: const InputDecoration(
+                  hintText: 'Search groups',
+                  prefixIcon: Icon(Icons.search),
+                ),
               ),
             ),
-          ),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                FilterChip(
-                  label: const Text('Online'),
-                  selected: state.filters.onlineOnly,
-                  onSelected: (v) => ctrl.setFilters(
-                    state.filters.copyWith(onlineOnly: v),
-                  ),
-                  selectedColor: AppColors.primarySurface,
-                ),
-                const SizedBox(width: 8),
-                ActionChip(
-                  label: Text(state.filters.nativeLanguage ?? 'Native'),
-                  onPressed: () => _openFilters(context, ref),
-                ),
-                const SizedBox(width: 8),
-                ActionChip(
-                  label: Text(state.filters.learningLanguage ?? 'Learning'),
-                  onPressed: () => _openFilters(context, ref),
-                ),
-              ],
+            SizedBox(
+              height: 86,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: LanguageFlagFilter.filters.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (_, i) {
+                  final f = LanguageFlagFilter.filters[i];
+                  final selected = state.selectedLanguageId == f.id;
+                  return _FlagChip(
+                    filter: f,
+                    selected: selected,
+                    onTap: () => ctrl.setLanguageFilter(f.id),
+                  );
+                },
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: state.users.isEmpty
-                ? const EmptyState(
-                    icon: Icons.travel_explore,
-                    title: 'No partners found',
-                    subtitle: 'Try adjusting your filters',
-                  )
-                : state.isGrid
-                    ? _CardSwipe(users: state.users)
-                    : ListView.builder(
-                        itemCount: state.users.length,
-                        itemBuilder: (_, i) {
-                          final u = state.users[i];
-                          return ListTile(
-                            onTap: () => context.push('/users/${u.id}'),
-                            leading: AppAvatar(
-                              name: u.displayName,
-                              url: u.avatarUrl,
-                              status: u.status,
-                              showStatus: true,
-                            ),
-                            title: Text(u.displayName),
-                            subtitle: Text(
-                              '${u.nativeLanguage} · learning ${u.primaryLearning}\n${u.bio}',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            isThreeLine: true,
-                            trailing: IconButton(
-                              icon: const Icon(Icons.chat_bubble_outline),
-                              onPressed: () => context.push('/chat/c_${u.id}'),
-                            ),
-                          );
-                        },
-                      ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+              child: Text(
+                state.selectedFilter.languageCode.isEmpty
+                    ? '${state.groups.length} groups'
+                    : '${state.groups.length} · ${state.selectedFilter.label} chats',
+                style: context.textTheme.labelLarge?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+            Expanded(
+              child: state.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : state.groups.isEmpty
+                      ? const EmptyState(
+                          icon: Icons.groups_outlined,
+                          title: 'No groups found',
+                          subtitle: 'Try another language flag or search',
+                        )
+                      : ListView.separated(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                          itemCount: state.groups.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 10),
+                          itemBuilder: (_, i) {
+                            final g = state.groups[i];
+                            return _GroupTile(
+                              group: g,
+                              onTap: () => _openGroup(context, ref, g),
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  void _openFilters(BuildContext context, WidgetRef ref) {
-    final state = ref.read(discoverControllerProvider);
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (ctx) {
-        var online = state.filters.onlineOnly;
-        String? native = state.filters.nativeLanguage;
-        return StatefulBuilder(
-          builder: (ctx, setModal) {
-            return Padding(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text('Filters', style: ctx.textTheme.titleLarge),
-                  SwitchListTile(
-                    title: const Text('Online only'),
-                    value: online,
-                    onChanged: (v) => setModal(() => online = v),
-                  ),
-                  const SizedBox(height: 8),
-                  Text('Native language', style: ctx.textTheme.titleSmall),
-                  Wrap(
-                    spacing: 8,
-                    children: ['Spanish', 'German', 'French', 'Japanese', 'Portuguese']
-                        .map((l) {
-                      return ChoiceChip(
-                        label: Text(l),
-                        selected: native == l,
-                        onSelected: (_) => setModal(() => native = l),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 16),
-                  FilledButton(
-                    onPressed: () {
-                      ref.read(discoverControllerProvider.notifier).setFilters(
-                            DiscoverFilters(
-                              onlineOnly: online,
-                              nativeLanguage: native,
-                            ),
-                          );
-                      Navigator.pop(ctx);
-                    },
-                    child: const Text('Apply'),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
+  void _openGroup(
+    BuildContext context,
+    WidgetRef ref,
+    ChatConversation group,
+  ) {
+    ref.read(conversationsProvider.notifier).ensureGroup(group);
+    context.push('/chat/${group.id}');
   }
 }
 
-class _CardSwipe extends StatefulWidget {
-  const _CardSwipe({required this.users});
-  final List users;
-
-  @override
-  State<_CardSwipe> createState() => _CardSwipeState();
-}
-
-class _CardSwipeState extends State<_CardSwipe> {
-  int index = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    if (index >= widget.users.length) {
-      return const EmptyState(
-        icon: Icons.check_circle_outline,
-        title: 'You are all caught up',
-        subtitle: 'Check back later for more partners',
-      );
-    }
-    final u = widget.users[index];
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: context.isDark
-                    ? AppColors.surfaceElevatedDark
-                    : Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-                border: Border.all(
-                  color: context.isDark ? AppColors.borderDark : AppColors.border,
-                ),
-              ),
-              child: Column(
-                children: [
-                  const Spacer(),
-                  AppAvatar(
-                    name: u.displayName,
-                    url: u.avatarUrl,
-                    size: 96,
-                    status: u.status,
-                    showStatus: true,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(u.displayName, style: context.textTheme.headlineSmall),
-                  Text('@${u.username} · ${u.country ?? ''}'),
-                  const SizedBox(height: 12),
-                  Text(
-                    u.bio,
-                    textAlign: TextAlign.center,
-                    style: context.textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 16),
-                  Wrap(
-                    spacing: 6,
-                    children: u.interests
-                        .map<Widget>((e) => Chip(label: Text(e)))
-                        .toList(),
-                  ),
-                  const Spacer(),
-                  Text(
-                    '${u.nativeLanguage} → ${u.primaryLearning} (${u.levelLabel})',
-                    style: context.textTheme.titleSmall?.copyWith(
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _RoundAction(
-                icon: Icons.close,
-                color: AppColors.error,
-                onTap: () => setState(() => index++),
-              ),
-              _RoundAction(
-                icon: Icons.chat_bubble,
-                color: AppColors.secondary,
-                onTap: () => context.push('/chat/c_${u.id}'),
-              ),
-              _RoundAction(
-                icon: Icons.favorite,
-                color: AppColors.primary,
-                onTap: () => setState(() => index++),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-        ],
-      ),
-    );
-  }
-}
-
-class _RoundAction extends StatelessWidget {
-  const _RoundAction({
-    required this.icon,
-    required this.color,
+class _FlagChip extends StatelessWidget {
+  const _FlagChip({
+    required this.filter,
+    required this.selected,
     required this.onTap,
   });
-  final IconData icon;
-  final Color color;
+
+  final LanguageFlagFilter filter;
+  final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            width: 52,
+            height: 52,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: selected
+                  ? AppColors.primarySurface
+                  : (context.isDark
+                      ? AppColors.surfaceElevatedDark
+                      : AppColors.surface),
+              border: Border.all(
+                color: selected ? AppColors.primary : AppColors.border,
+                width: selected ? 2.5 : 1,
+              ),
+              boxShadow: selected
+                  ? [
+                      BoxShadow(
+                        color: AppColors.primary.withOpacity(0.18),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Text(filter.flag, style: const TextStyle(fontSize: 26)),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            filter.label,
+            style: context.textTheme.labelSmall?.copyWith(
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              color: selected ? AppColors.primary : AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GroupTile extends StatelessWidget {
+  const _GroupTile({required this.group, required this.onTap});
+
+  final ChatConversation group;
+  final VoidCallback onTap;
+
+  String get _flagEmoji {
+    final code = group.flagCountryCode?.toUpperCase();
+    for (final f in LanguageFlagFilter.filters) {
+      if (f.countryCode == code) return f.flag;
+    }
+    if (code == 'EU') return '🌍';
+    return '💬';
+  }
+
+  String get _langLabel {
+    if (group.languageCodes.isEmpty) return 'Multi';
+    return group.languageCodes.map((c) => c.toUpperCase()).join(' · ');
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Material(
-      color: color.withOpacity(0.12),
-      shape: const CircleBorder(),
+      color: context.isDark
+          ? AppColors.surfaceElevatedDark
+          : AppColors.surfaceElevated,
+      borderRadius: BorderRadius.circular(16),
       child: InkWell(
-        customBorder: const CircleBorder(),
         onTap: onTap,
-        child: SizedBox(
-          width: 60,
-          height: 60,
-          child: Icon(icon, color: color),
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.primarySurface,
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Text(_flagEmoji, style: const TextStyle(fontSize: 26)),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      group.displayTitle,
+                      style: context.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      group.description.isEmpty
+                          ? '${group.memberCount} members'
+                          : group.description,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '$_langLabel · ${group.memberCount} members',
+                      style: context.textTheme.labelSmall?.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chat_bubble_outline_rounded,
+                color: AppColors.textTertiary,
+              ),
+            ],
+          ),
         ),
       ),
     );
