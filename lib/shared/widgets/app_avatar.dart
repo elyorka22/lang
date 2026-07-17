@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/extensions.dart';
 import '../models/user_profile.dart';
 
 /// Telegram-style circular avatar: photo or colored initials disc.
