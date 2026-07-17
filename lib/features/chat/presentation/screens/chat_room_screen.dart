@@ -8,6 +8,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../shared/models/message.dart';
 import '../../../../shared/widgets/app_avatar.dart';
+import '../../../memorizer/presentation/widgets/save_to_memorizer_sheet.dart';
 import '../../application/chat_controller.dart';
 
 class ChatRoomScreen extends ConsumerStatefulWidget {
@@ -166,6 +167,16 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                         showSender: room.isGroup && !mine,
                         senderName: room.senderName(m.senderId),
                         onLongPress: () => _showActions(m, mine),
+                        onSaveSelection: (selected) {
+                          showSaveToMemorizerSheet(
+                            context: context,
+                            ref: ref,
+                            text: selected,
+                            conversationId: widget.conversationId,
+                            messageId: m.id,
+                            contextSentence: m.text ?? '',
+                          );
+                        },
                       );
                     },
                   ),
@@ -228,6 +239,21 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.bookmark_add_outlined),
+                title: const Text('Save to Запоминалка'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  showSaveToMemorizerSheet(
+                    context: context,
+                    ref: ref,
+                    text: message.text ?? '',
+                    conversationId: widget.conversationId,
+                    messageId: message.id,
+                    contextSentence: message.text ?? '',
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.menu_book_outlined),
                 title: const Text('Save vocabulary'),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -279,6 +305,7 @@ class _MessageBubble extends StatelessWidget {
     required this.message,
     required this.isMine,
     required this.onLongPress,
+    required this.onSaveSelection,
     this.showSender = false,
     this.senderName = '',
   });
@@ -288,6 +315,7 @@ class _MessageBubble extends StatelessWidget {
   final bool showSender;
   final String senderName;
   final VoidCallback onLongPress;
+  final ValueChanged<String> onSaveSelection;
 
   @override
   Widget build(BuildContext context) {
@@ -323,7 +351,7 @@ class _MessageBubble extends StatelessWidget {
               if (showSender && senderName.isNotEmpty) ...[
                 Text(
                   senderName,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: AppColors.primaryLight,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -344,9 +372,29 @@ class _MessageBubble extends StatelessWidget {
                   ],
                 )
               else
-                Text(
+                SelectableText(
                   message.text ?? '',
                   style: TextStyle(color: fg, fontSize: 15, height: 1.35),
+                  contextMenuBuilder: (context, editableTextState) {
+                    final value = editableTextState.textEditingValue;
+                    final selected =
+                        value.selection.textInside(value.text).trim();
+                    final items = <ContextMenuButtonItem>[
+                      if (selected.isNotEmpty)
+                        ContextMenuButtonItem(
+                          label: 'Запоминалка',
+                          onPressed: () {
+                            ContextMenuController.removeAny();
+                            onSaveSelection(selected);
+                          },
+                        ),
+                      ...editableTextState.contextMenuButtonItems,
+                    ];
+                    return AdaptiveTextSelectionToolbar.buttonItems(
+                      anchors: editableTextState.contextMenuAnchors,
+                      buttonItems: items,
+                    );
+                  },
                 ),
               if (message.translatedText != null) ...[
                 const SizedBox(height: 6),

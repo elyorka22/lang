@@ -65,6 +65,10 @@ class ApiEndpoints {
   static const String vocabReview = '/vocabulary/review';
   static const String flashcards = '/vocabulary/flashcards';
 
+  // Запоминалка (clips from chat)
+  static const String memorizer = '/memorizer';
+  static String memorizerItem(String id) => '/memorizer/$id';
+
   // Learning
   static const String dailyGoal = '/learning/daily-goal';
   static const String stats = '/learning/stats';

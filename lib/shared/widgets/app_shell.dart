@@ -25,6 +25,7 @@ class AppShell extends StatelessWidget {
         child: NavigationBar(
           selectedIndex: navigationShell.currentIndex,
           onDestinationSelected: _onTap,
+          labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
           destinations: [
             NavigationDestination(
               icon: const Icon(Icons.home_outlined),
@@ -42,6 +43,12 @@ class AppShell extends StatelessWidget {
               selectedIcon:
                   Icon(Icons.chat_bubble_rounded, color: AppColors.primary),
               label: 'Chats',
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.bookmark_border_rounded),
+              selectedIcon:
+                  Icon(Icons.bookmark_rounded, color: AppColors.primary),
+              label: 'Saves',
             ),
             NavigationDestination(
               icon: const Icon(Icons.smart_toy_outlined),

@@ -18,6 +18,7 @@ import '../features/chat/presentation/screens/group_info_screen.dart';
 import '../features/discover/presentation/screens/discover_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/learning/presentation/screens/learning_screen.dart';
+import '../features/memorizer/presentation/screens/memorizer_screen.dart';
 import '../features/notifications/presentation/screens/notifications_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
 import '../features/settings/presentation/screens/settings_screen.dart';
@@ -99,6 +100,14 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/chats',
                 builder: (_, __) => const ChatsScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/saves',
+                builder: (_, __) => const MemorizerScreen(),
               ),
             ],
           ),
