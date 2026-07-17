@@ -9,12 +9,22 @@ This Flutter client expects a NestJS API matching `lib/core/network/api_endpoint
 - `discover` — filtered cursor pagination, online presence (Redis)
 - `friends` — follow / request / accept / reject
 - `chat` — conversations, messages (cursor), Socket.IO gateway
+- `groups` — Telegram-style multi-member practice rooms
 - `media` — R2/Spaces presigned PUT URLs only
 - `ai` — chat, translate, grammar, explain, improve, pronounce, voice-analysis, lessons, quiz, roleplay (rate-limited)
 - `vocabulary` — CRUD + SRS scheduling
 - `learning` — daily goals, XP, streaks, achievements, leaderboard
 - `notifications` — FCM token registry + push jobs
 - `billing` — Premium entitlements
+
+## Groups API
+
+- `POST /groups` — create `{ title, description, memberIds }`
+- `GET /groups/:id`
+- `POST /groups/:id/members` — add members
+- `DELETE /groups/:id/members/:userId`
+- `POST /groups/:id/leave`
+- Socket events reuse `conversation:join` with group conversation ids
 
 ## Performance checklist
 

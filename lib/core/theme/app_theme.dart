@@ -24,12 +24,17 @@ class AppTheme {
       secondary: AppColors.secondary,
       onSecondary: Colors.white,
       secondaryContainer: isDark
-          ? const Color(0xFF0C4A6E)
-          : const Color(0xFFE0F2FE),
+          ? const Color(0xFF164E63)
+          : const Color(0xFFCFFAFE),
       onSecondaryContainer:
-          isDark ? const Color(0xFFBAE6FD) : const Color(0xFF0C4A6E),
+          isDark ? const Color(0xFFA5F3FC) : const Color(0xFF155E75),
       tertiary: AppColors.accent,
       onTertiary: Colors.white,
+      tertiaryContainer: isDark
+          ? const Color(0xFF831843)
+          : const Color(0xFFFCE7F3),
+      onTertiaryContainer:
+          isDark ? const Color(0xFFFBCFE8) : const Color(0xFF9D174D),
       error: AppColors.error,
       onError: Colors.white,
       surface: isDark ? AppColors.surfaceDark : AppColors.background,

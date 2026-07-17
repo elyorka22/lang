@@ -127,7 +127,7 @@ class PremiumScreen extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF8B5CF6), Color(0xFF22C55E)],
+                colors: AppColors.brandGradient,
               ),
               borderRadius: BorderRadius.circular(20),
             ),

@@ -53,26 +53,55 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
       appBar: AppBar(
         titleSpacing: 0,
         title: InkWell(
-          onTap: () => context.push('/users/${room.peer.id}'),
+          onTap: () {
+            if (room.isGroup) {
+              context.push('/groups/${room.conversationId}');
+            } else if (room.peer != null) {
+              context.push('/users/${room.peer!.id}');
+            }
+          },
           child: Row(
             children: [
-              AppAvatar(
-                name: room.peer.displayName,
-                url: room.peer.avatarUrl,
-                size: 40,
-                status: room.peer.status,
-                showStatus: true,
-              ),
+              if (room.isGroup)
+                Container(
+                  width: 40,
+                  height: 40,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: AppColors.brandGradientSoft,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    room.title.initials,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
+                  ),
+                )
+              else
+                AppAvatar(
+                  name: room.peer?.displayName ?? '?',
+                  url: room.peer?.avatarUrl,
+                  size: 40,
+                  status: room.peer?.status,
+                  showStatus: true,
+                ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(room.peer.displayName, style: context.textTheme.titleSmall),
+                    Text(room.title, style: context.textTheme.titleSmall),
                     Text(
                       room.isTyping
                           ? 'typing…'
-                          : room.peer.status.name,
+                          : room.isGroup
+                              ? '${room.memberCount} members'
+                              : (room.peer?.status.name ?? ''),
                       style: context.textTheme.labelSmall?.copyWith(
                         color: room.isTyping
                             ? AppColors.primary
@@ -86,14 +115,21 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.videocam_outlined),
-            onPressed: () => context.showSnack('Video call — connect WebRTC'),
-          ),
-          IconButton(
-            icon: const Icon(Icons.call_outlined),
-            onPressed: () => context.showSnack('Voice call — connect WebRTC'),
-          ),
+          if (room.isGroup)
+            IconButton(
+              icon: const Icon(Icons.info_outline),
+              onPressed: () => context.push('/groups/${room.conversationId}'),
+            )
+          else ...[
+            IconButton(
+              icon: const Icon(Icons.videocam_outlined),
+              onPressed: () => context.showSnack('Video call — connect WebRTC'),
+            ),
+            IconButton(
+              icon: const Icon(Icons.call_outlined),
+              onPressed: () => context.showSnack('Voice call — connect WebRTC'),
+            ),
+          ],
         ],
       ),
       body: Column(
@@ -111,9 +147,24 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                     itemBuilder: (_, i) {
                       final m = room.messages[i];
                       final mine = m.senderId == 'me';
+                      final isSystem = m.type == MessageType.system ||
+                          m.senderId == 'system';
+                      if (isSystem) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Center(
+                            child: Text(
+                              m.text ?? '',
+                              style: context.textTheme.labelSmall,
+                            ),
+                          ),
+                        );
+                      }
                       return _MessageBubble(
                         message: m,
                         isMine: mine,
+                        showSender: room.isGroup && !mine,
+                        senderName: room.senderName(m.senderId),
                         onLongPress: () => _showActions(m, mine),
                       );
                     },
@@ -123,7 +174,8 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
             controller: _input,
             onSend: _send,
             onAttach: () => context.showSnack('Image upload via R2/Spaces'),
-            onVoice: () => context.showSnack('Hold to record voice (record package)'),
+            onVoice: () =>
+                context.showSnack('Hold to record voice (record package)'),
           ),
         ],
       ),
@@ -227,10 +279,14 @@ class _MessageBubble extends StatelessWidget {
     required this.message,
     required this.isMine,
     required this.onLongPress,
+    this.showSender = false,
+    this.senderName = '',
   });
 
   final ChatMessage message;
   final bool isMine;
+  final bool showSender;
+  final String senderName;
   final VoidCallback onLongPress;
 
   @override
@@ -264,6 +320,17 @@ class _MessageBubble extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (showSender && senderName.isNotEmpty) ...[
+                Text(
+                  senderName,
+                  style: TextStyle(
+                    color: AppColors.primaryLight,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+              ],
               if (message.type == MessageType.voice)
                 Row(
                   mainAxisSize: MainAxisSize.min,

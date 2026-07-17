@@ -227,12 +227,12 @@ class HomeScreen extends ConsumerWidget {
                   return ListTile(
                     onTap: () => context.push('/chat/${c.id}'),
                     leading: AppAvatar(
-                      name: c.peer.displayName,
-                      url: c.peer.avatarUrl,
-                      status: c.peer.status,
-                      showStatus: true,
+                      name: c.peer?.displayName ?? c.displayTitle,
+                      url: c.peer?.avatarUrl,
+                      status: c.peer?.status,
+                      showStatus: c.peer != null,
                     ),
-                    title: Text(c.peer.displayName),
+                    title: Text(c.displayTitle),
                     subtitle: Text(
                       c.lastMessage?.text ??
                           (c.lastMessage?.type.name == 'voice'
@@ -277,7 +277,7 @@ class _DailyGoalCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF22C55E), Color(0xFF16A34A)],
+          colors: AppColors.brandGradientSoft,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

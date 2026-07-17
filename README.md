@@ -83,7 +83,7 @@ Endpoint map: `lib/core/network/api_endpoints.dart`.
 - Vocabulary + SRS-style flashcards
 - Profile, friends actions, learning stats, premium paywall UI
 - Settings (theme, privacy stubs, logout, delete account)
-- Light / dark Material 3 theme (`#22C55E` primary)
+- Light / dark Material 3 theme (`#7C3AED` Aurora Violet primary)
 
 ## Backend contract (NestJS)
 
@@ -103,7 +103,7 @@ Realtime events (Socket.IO): `message:new`, `typing`, `presence:update`, `messag
 
 ## Design system
 
-- Primary `#22C55E`, white surfaces, 16–20px radii, 8pt spacing  
+- Primary `#7C3AED`, mist lilac surfaces, 16–20px radii, 8pt spacing  
 - Plus Jakarta Sans via `google_fonts`  
 - Soft shadows, motion via `flutter_animate`
 

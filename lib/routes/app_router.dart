@@ -13,6 +13,8 @@ import '../features/ai/presentation/screens/ai_screen.dart';
 import '../features/ai/presentation/screens/voice_analysis_screen.dart';
 import '../features/chat/presentation/screens/chat_room_screen.dart';
 import '../features/chat/presentation/screens/chats_screen.dart';
+import '../features/chat/presentation/screens/create_group_screen.dart';
+import '../features/chat/presentation/screens/group_info_screen.dart';
 import '../features/discover/presentation/screens/discover_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/learning/presentation/screens/learning_screen.dart';
@@ -122,6 +124,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/chat/:id',
         builder: (_, state) => ChatRoomScreen(
           conversationId: state.pathParameters['id']!,
+        ),
+      ),
+      GoRoute(
+        path: '/groups/create',
+        builder: (_, __) => const CreateGroupScreen(),
+      ),
+      GoRoute(
+        path: '/groups/:id',
+        builder: (_, state) => GroupInfoScreen(
+          groupId: state.pathParameters['id']!,
         ),
       ),
       GoRoute(

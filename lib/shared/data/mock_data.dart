@@ -126,6 +126,25 @@ class MockData {
     final now = DateTime.now();
     return [
       ChatConversation(
+        id: 'g1',
+        type: ConversationType.group,
+        title: 'Spanish Practice 🇪🇸',
+        description: 'Daily speaking practice — A2 to B2',
+        members: [currentUser, users[0], users[3], users[4]],
+        adminIds: const ['me', 'u1'],
+        unreadCount: 5,
+        updatedAt: now.subtract(const Duration(minutes: 1)),
+        lastMessage: ChatMessage(
+          id: 'gm1',
+          conversationId: 'g1',
+          senderId: 'u1',
+          type: MessageType.text,
+          text: 'Who wants to do a 10-min voice round?',
+          createdAt: now.subtract(const Duration(minutes: 1)),
+          status: MessageStatus.delivered,
+        ),
+      ),
+      ChatConversation(
         id: 'c1',
         peer: users[0],
         unreadCount: 2,
@@ -138,6 +157,25 @@ class MockData {
           text: '¿Cómo estás hoy? 😊',
           createdAt: now.subtract(const Duration(minutes: 3)),
           status: MessageStatus.delivered,
+        ),
+      ),
+      ChatConversation(
+        id: 'g2',
+        type: ConversationType.group,
+        title: 'Polyglot Café',
+        description: 'EN · ES · FR · DE — casual chat',
+        members: [currentUser, users[0], users[1], users[2], users[3]],
+        adminIds: const ['me'],
+        unreadCount: 0,
+        updatedAt: now.subtract(const Duration(hours: 5)),
+        lastMessage: ChatMessage(
+          id: 'gm2',
+          conversationId: 'g2',
+          senderId: 'u2',
+          type: MessageType.text,
+          text: 'Guten Morgen everyone ☕',
+          createdAt: now.subtract(const Duration(hours: 5)),
+          status: MessageStatus.read,
         ),
       ),
       ChatConversation(
@@ -173,7 +211,61 @@ class MockData {
     ];
   }
 
+  static List<ChatMessage> groupMessages(String conversationId) {
+    final now = DateTime.now();
+    return [
+      ChatMessage(
+        id: 'gmsg1',
+        conversationId: conversationId,
+        senderId: 'u1',
+        type: MessageType.text,
+        text: 'Welcome to the group! Let’s keep messages in the target language 💬',
+        createdAt: now.subtract(const Duration(hours: 2)),
+        status: MessageStatus.read,
+      ),
+      ChatMessage(
+        id: 'gmsg2',
+        conversationId: conversationId,
+        senderId: 'me',
+        type: MessageType.text,
+        text: 'Excited to practice with everyone!',
+        createdAt: now.subtract(const Duration(hours: 1, minutes: 40)),
+        status: MessageStatus.read,
+      ),
+      ChatMessage(
+        id: 'gmsg3',
+        conversationId: conversationId,
+        senderId: 'u3',
+        type: MessageType.text,
+        text: 'Same here — any topic for today?',
+        createdAt: now.subtract(const Duration(hours: 1, minutes: 20)),
+        status: MessageStatus.read,
+      ),
+      ChatMessage(
+        id: 'gmsg4',
+        conversationId: conversationId,
+        senderId: 'u2',
+        type: MessageType.text,
+        text: 'How about travel & food?',
+        createdAt: now.subtract(const Duration(minutes: 40)),
+        status: MessageStatus.read,
+      ),
+      ChatMessage(
+        id: 'gmsg5',
+        conversationId: conversationId,
+        senderId: 'u1',
+        type: MessageType.text,
+        text: 'Who wants to do a 10-min voice round?',
+        createdAt: now.subtract(const Duration(minutes: 1)),
+        status: MessageStatus.delivered,
+      ),
+    ];
+  }
+
   static List<ChatMessage> messagesFor(String conversationId) {
+    if (conversationId.startsWith('g')) {
+      return groupMessages(conversationId);
+    }
     final now = DateTime.now();
     return [
       ChatMessage(

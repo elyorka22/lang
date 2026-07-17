@@ -53,7 +53,10 @@ class HomeController extends StateNotifier<HomeState> {
       online: MockData.users
           .where((u) => u.status == OnlineStatus.online)
           .toList(),
-      recentChats: MockData.conversations(),
+      recentChats: MockData.conversations()
+          .where((c) => !c.isGroup)
+          .take(3)
+          .toList(),
       reviewCount: MockData.vocabulary.length,
       isLoading: false,
     );

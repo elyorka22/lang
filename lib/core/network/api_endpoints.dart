@@ -40,6 +40,13 @@ class ApiEndpoints {
   static String message(String id) => '/chat/messages/$id';
   static const String mediaPresign = '/media/presign'; // R2/Spaces upload
 
+  // Groups (Telegram-style)
+  static const String groups = '/groups';
+  static String group(String id) => '/groups/$id';
+  static String groupMembers(String id) => '/groups/$id/members';
+  static String leaveGroup(String id) => '/groups/$id/leave';
+  static String groupMessages(String id) => '/groups/$id/messages';
+
   // AI
   static const String aiChat = '/ai/chat';
   static const String aiTranslate = '/ai/translate';
