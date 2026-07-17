@@ -196,21 +196,74 @@ class HomeScreen extends ConsumerWidget {
                 itemCount: home.recommended.length,
                 itemBuilder: (_, i) {
                   final u = home.recommended[i];
-                  return ListTile(
-                    onTap: () => context.push('/users/${u.id}'),
-                    leading: AppAvatar(
-                      name: u.displayName,
-                      url: u.avatarUrl,
-                      status: u.status,
-                      showStatus: true,
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
                     ),
-                    title: Text(u.displayName),
-                    subtitle: Text(
-                      '${u.nativeLanguage} → ${u.primaryLearning} · ${u.country ?? ''}',
-                    ),
-                    trailing: FilledButton.tonal(
-                      onPressed: () => context.push('/chat/${u.id}'),
-                      child: const Text('Chat'),
+                    child: InkWell(
+                      onTap: () => context.push('/users/${u.id}'),
+                      borderRadius: BorderRadius.circular(16),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          AppAvatar(
+                            name: u.displayName,
+                            url: u.avatarUrl,
+                            status: u.status,
+                            showStatus: true,
+                            size: 52,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  u.displayName,
+                                  style: context.textTheme.titleSmall,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${u.nativeLanguage} → ${u.primaryLearning}',
+                                  style: context.textTheme.bodySmall,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                if (u.country != null) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    u.country!,
+                                    style: context.textTheme.labelSmall,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          SizedBox(
+                            height: 36,
+                            child: FilledButton(
+                              onPressed: () =>
+                                  context.push('/chat/c_${u.id}'),
+                              style: FilledButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                ),
+                                minimumSize: const Size(0, 36),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                visualDensity: VisualDensity.compact,
+                              ),
+                              child: const Text('Chat'),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
