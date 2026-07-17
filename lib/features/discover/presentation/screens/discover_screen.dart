@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../shared/models/conversation.dart';
+import '../../../../shared/providers/locale_provider.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../../shared/widgets/safe_body.dart';
 import '../../application/discover_controller.dart';
@@ -17,13 +18,14 @@ class DiscoverScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(discoverControllerProvider);
     final ctrl = ref.read(discoverControllerProvider.notifier);
+    final s = ref.watch(appStringsProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Discover'),
+        title: Text(s.discover),
         actions: [
           IconButton(
-            tooltip: 'Create group',
+            tooltip: s.newGroup,
             onPressed: () => context.push('/groups/create'),
             icon: const Icon(Icons.group_add_outlined),
           ),

@@ -6,6 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../shared/models/game_models.dart';
+import '../../../../shared/providers/locale_provider.dart';
 import '../../../../shared/widgets/safe_body.dart';
 import '../../application/games_controller.dart';
 
@@ -17,10 +18,11 @@ class GamesHubScreen extends ConsumerWidget {
     final games = ref.watch(gamesControllerProvider);
     final quests = GameCatalog.quests;
     final doneCount = quests.where(games.isCompleted).length;
+    final s = ref.watch(appStringsProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Games'),
+        title: Text(s.games),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 12),
@@ -41,14 +43,14 @@ class GamesHubScreen extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           children: [
             Text(
-              'Practice by playing',
+              s.practiceByPlaying,
               style: context.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              'Flashcards, AI quests, and picture word challenges.',
+              s.gamesHubHint,
               style: context.textTheme.bodyMedium?.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -57,9 +59,9 @@ class GamesHubScreen extends ConsumerWidget {
             _GameTile(
               icon: Icons.style_outlined,
               iconColor: AppColors.secondary,
-              title: '1 · Flashcards',
-              subtitle: 'Flip cards and review your vocabulary',
-              trailing: 'Play',
+              title: '1 · ${s.flashcards}',
+              subtitle: s.flashcards,
+              trailing: s.play,
               onTap: () => context.push('/games/flashcards'),
             ),
             const SizedBox(height: 12),
@@ -68,8 +70,8 @@ class GamesHubScreen extends ConsumerWidget {
               iconColor: AppColors.primary,
               title: '2 · AI Quest Chat',
               subtitle:
-                  'Book a hotel, open a bank card… Level ${games.unlockedLevel} open · $doneCount/${quests.length} done',
-              trailing: 'Levels',
+                  'Level ${games.unlockedLevel} · $doneCount/${quests.length}',
+              trailing: s.levels,
               onTap: () => context.push('/games/quests'),
             ),
             const SizedBox(height: 12),
@@ -77,14 +79,13 @@ class GamesHubScreen extends ConsumerWidget {
               icon: Icons.image_search_outlined,
               iconColor: AppColors.accent,
               title: '3 · Picture Words',
-              subtitle:
-                  'See a ball → write round, kick, play… Need more words each level',
-              trailing: 'Play',
+              subtitle: s.questsCards,
+              trailing: s.play,
               onTap: () => context.push('/games/picture-words'),
             ),
             const SizedBox(height: AppSpacing.xl),
             Text(
-              'Also available',
+              s.alsoAvailable,
               style: context.textTheme.titleSmall?.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -96,8 +97,8 @@ class GamesHubScreen extends ConsumerWidget {
                 backgroundColor: AppColors.primarySurface,
                 child: Icon(Icons.smart_toy_outlined, color: AppColors.primary),
               ),
-              title: const Text('Free AI tutor'),
-              subtitle: const Text('Open chat without quest goals'),
+              title: Text(s.freeAiTutor),
+              subtitle: Text(s.freeAiTutorHint),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.push('/ai'),
             ),
@@ -107,8 +108,8 @@ class GamesHubScreen extends ConsumerWidget {
                 backgroundColor: AppColors.primarySurface,
                 child: Icon(Icons.mic_outlined, color: AppColors.accent),
               ),
-              title: const Text('Voice coach'),
-              subtitle: const Text('Pronunciation feedback'),
+              title: Text(s.voiceCoach),
+              subtitle: Text(s.voiceCoachHint),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.push('/ai/voice'),
             ),

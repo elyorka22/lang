@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../shared/models/goal_map.dart';
+import '../../../../shared/providers/locale_provider.dart';
 import '../../../../shared/widgets/lingua_button.dart';
 import '../../../../shared/widgets/safe_body.dart';
 import '../../../auth/application/auth_controller.dart';
@@ -24,10 +25,11 @@ class _GoalMapScreenState extends ConsumerState<GoalMapScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(goalMapControllerProvider);
     final plan = state.plan;
+    final s = ref.watch(appStringsProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Goal Map'),
+        title: Text(s.goalMap),
         actions: [
           if (plan != null)
             IconButton(

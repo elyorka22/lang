@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../shared/models/memorizer_item.dart';
+import '../../../../shared/providers/locale_provider.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../../shared/widgets/safe_body.dart';
 import '../../application/memorizer_controller.dart';
@@ -51,6 +52,7 @@ class _MemorizerScreenState extends ConsumerState<MemorizerScreen>
   @override
   Widget build(BuildContext context) {
     final items = ref.watch(memorizerProvider);
+    final s = ref.watch(appStringsProvider);
     final words = _filter(
       items.where((e) => e.kind == MemorizerKind.word).toList(),
     );
@@ -61,16 +63,16 @@ class _MemorizerScreenState extends ConsumerState<MemorizerScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Запоминалка'),
+        title: Text(s.memorizer),
         bottom: TabBar(
           controller: _tabs,
           labelColor: AppColors.primary,
           unselectedLabelColor: AppColors.textSecondary,
           indicatorColor: AppColors.primary,
           tabs: [
-            Tab(text: 'All (${all.length})'),
-            Tab(text: 'Words (${words.length})'),
-            Tab(text: 'Phrases (${phrases.length})'),
+            Tab(text: '${s.all} (${all.length})'),
+            Tab(text: '${s.words} (${words.length})'),
+            Tab(text: '${s.phrases} (${phrases.length})'),
           ],
         ),
       ),

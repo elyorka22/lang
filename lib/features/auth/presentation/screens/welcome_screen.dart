@@ -7,6 +7,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions.dart';
+import '../../../../shared/widgets/app_logo.dart';
 import '../../../../shared/widgets/lingua_button.dart';
 import '../../application/auth_controller.dart';
 // AppShadows lives in app_spacing.dart
@@ -26,24 +27,7 @@ class WelcomeScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
-              Container(
-                width: 88,
-                height: 88,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: AppShadows.primaryGlow,
-                ),
-                child: const Text(
-                  'L',
-                  style: TextStyle(
-                    fontSize: 44,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
-              )
+              const Center(child: AppLogo(size: 96))
                   .animate()
                   .fadeIn(duration: 400.ms)
                   .scale(begin: const Offset(0.8, 0.8)),

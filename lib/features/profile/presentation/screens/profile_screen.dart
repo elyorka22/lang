@@ -6,6 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../shared/data/mock_data.dart';
+import '../../../../shared/providers/locale_provider.dart';
 import '../../../../shared/widgets/app_avatar.dart';
 import '../../../../shared/widgets/lingua_button.dart';
 import '../../../../shared/widgets/safe_body.dart';
@@ -19,6 +20,7 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final me = ref.watch(authControllerProvider).user ?? MockData.currentUser;
+    final s = ref.watch(appStringsProvider);
     final isSelf = userId == null || userId == 'me' || userId == me.id;
     final user = isSelf
         ? me
@@ -29,7 +31,7 @@ class ProfileScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isSelf ? 'Profile' : user.displayName),
+        title: Text(isSelf ? s.profile : user.displayName),
         actions: [
           if (isSelf)
             IconButton(

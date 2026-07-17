@@ -5,46 +5,61 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../shared/models/conversation.dart';
+import '../../../../shared/l10n/app_strings.dart';
+import '../../../../shared/providers/locale_provider.dart';
 import '../../../../shared/widgets/app_avatar.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../application/chat_controller.dart';
 
 class ChatsScreen extends ConsumerWidget {
-  const ChatsScreen({super.key});
+  const ChatsScreen({super.key, this.inboxOnly = false});
+
+  /// When true, shows only direct (1:1) chats — used as Rooms → Inbox.
+  final bool inboxOnly;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final chats = ref.watch(conversationsProvider);
+    final all = ref.watch(conversationsProvider);
+    final chats = inboxOnly
+        ? all.where((c) => !c.isGroup).toList()
+        : all;
+    final s = ref.watch(appStringsProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chats'),
+        title: Text(inboxOnly ? s.directInbox : s.chats),
         actions: [
-          IconButton(
-            tooltip: 'New group',
-            onPressed: () => context.push('/groups/create'),
-            icon: const Icon(Icons.group_add_outlined),
-          ),
-          IconButton(
-            onPressed: () => context.push('/discover'),
-            icon: const Icon(Icons.person_add_alt_1_outlined),
-          ),
+          if (!inboxOnly) ...[
+            IconButton(
+              tooltip: s.newGroup,
+              onPressed: () => context.push('/groups/create'),
+              icon: const Icon(Icons.group_add_outlined),
+            ),
+            IconButton(
+              onPressed: () => context.push('/discover'),
+              icon: const Icon(Icons.person_add_alt_1_outlined),
+            ),
+          ],
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showNewMenu(context),
-        child: const Icon(Icons.edit_outlined),
-      ),
+      floatingActionButton: inboxOnly
+          ? null
+          : FloatingActionButton(
+              onPressed: () => _showNewMenu(context, s),
+              child: const Icon(Icons.edit_outlined),
+            ),
       body: chats.isEmpty
           ? EmptyState(
               icon: Icons.chat_bubble_outline,
-              title: 'No conversations yet',
-              subtitle: 'Start a chat or create a practice group',
-              action: FilledButton.icon(
-                onPressed: () => context.push('/groups/create'),
-                icon: const Icon(Icons.group_add),
-                label: const Text('Create group'),
-              ),
+              title: inboxOnly ? s.directInbox : s.chats,
+              subtitle: s.findGroups,
+              action: inboxOnly
+                  ? null
+                  : FilledButton.icon(
+                      onPressed: () => context.push('/groups/create'),
+                      icon: const Icon(Icons.group_add),
+                      label: Text(s.newGroup),
+                    ),
             )
           : ListView.separated(
               padding: EdgeInsets.only(
@@ -148,7 +163,7 @@ class ChatsScreen extends ConsumerWidget {
     return 'Member';
   }
 
-  void _showNewMenu(BuildContext context) {
+  void _showNewMenu(BuildContext context, AppStrings s) {
     showModalBottomSheet<void>(
       context: context,
       builder: (ctx) {
@@ -158,8 +173,7 @@ class ChatsScreen extends ConsumerWidget {
             children: [
               ListTile(
                 leading: const Icon(Icons.group_add_outlined),
-                title: const Text('New group'),
-                subtitle: const Text('Practice with several partners'),
+                title: Text(s.newGroup),
                 onTap: () {
                   Navigator.pop(ctx);
                   context.push('/groups/create');
@@ -167,8 +181,7 @@ class ChatsScreen extends ConsumerWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.groups_outlined),
-                title: const Text('Find groups'),
-                subtitle: const Text('Discover practice chats by language'),
+                title: Text(s.findGroups),
                 onTap: () {
                   Navigator.pop(ctx);
                   context.push('/discover');

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../providers/locale_provider.dart';
 
-/// Bottom navigation shell — Home, Chats, Profile.
+/// Bottom navigation shell — Home, Rooms, Profile.
 /// Discover / Saves / Games live on Home shortcuts (not in the bar).
-class AppShell extends StatelessWidget {
+class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
@@ -18,7 +20,9 @@ class AppShell extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.watch(appStringsProvider);
+
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: SafeArea(
@@ -31,19 +35,19 @@ class AppShell extends StatelessWidget {
             NavigationDestination(
               icon: const Icon(Icons.home_outlined),
               selectedIcon: Icon(Icons.home_rounded, color: AppColors.primary),
-              label: 'Home',
+              label: s.navHome,
             ),
             NavigationDestination(
-              icon: const Icon(Icons.chat_bubble_outline_rounded),
+              icon: const Icon(Icons.meeting_room_outlined),
               selectedIcon:
-                  Icon(Icons.chat_bubble_rounded, color: AppColors.primary),
-              label: 'Chats',
+                  Icon(Icons.meeting_room_rounded, color: AppColors.primary),
+              label: s.navRooms,
             ),
             NavigationDestination(
               icon: const Icon(Icons.person_outline_rounded),
               selectedIcon:
                   Icon(Icons.person_rounded, color: AppColors.primary),
-              label: 'Profile',
+              label: s.navProfile,
             ),
           ],
         ),

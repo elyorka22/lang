@@ -26,6 +26,8 @@ import '../features/learning/presentation/screens/learning_screen.dart';
 import '../features/memorizer/presentation/screens/memorizer_screen.dart';
 import '../features/notifications/presentation/screens/notifications_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
+import '../features/rooms/presentation/screens/mafia_room_screen.dart';
+import '../features/rooms/presentation/screens/rooms_hub_screen.dart';
 import '../features/settings/presentation/screens/settings_screen.dart';
 import '../features/social/presentation/screens/host_table_screen.dart';
 import '../features/social/presentation/screens/mentors_screen.dart';
@@ -100,8 +102,24 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/chats',
-                builder: (_, __) => const ChatsScreen(),
+                path: '/rooms',
+                builder: (_, __) => const RoomsHubScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'inbox',
+                    builder: (_, __) => const ChatsScreen(inboxOnly: true),
+                  ),
+                  GoRoute(
+                    path: 'games/mafia/create',
+                    builder: (_, __) => const CreateMafiaRoomScreen(),
+                  ),
+                  GoRoute(
+                    path: 'games/mafia/:id',
+                    builder: (_, state) => MafiaRoomScreen(
+                      roomId: state.pathParameters['id']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -114,6 +132,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: '/chats',
+        redirect: (_, __) => '/rooms',
       ),
       GoRoute(
         path: '/goal-map',

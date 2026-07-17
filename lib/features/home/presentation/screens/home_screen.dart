@@ -9,6 +9,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../features/auth/application/auth_controller.dart';
 import '../../../../shared/models/goal_map.dart';
+import '../../../../shared/providers/locale_provider.dart';
 import '../../../../shared/widgets/app_avatar.dart';
 import '../../../../shared/widgets/loading_view.dart';
 import '../../../../shared/widgets/section_header.dart';
@@ -22,8 +23,12 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final home = ref.watch(homeControllerProvider);
     final user = ref.watch(authControllerProvider).user;
+    final s = ref.watch(appStringsProvider);
 
     if (home.isLoading) return const Scaffold(body: HomeShimmer());
+
+    final firstName = user?.displayName.split(' ').first ?? s.learner;
+    final goalMap = ref.watch(goalMapControllerProvider).plan;
 
     return Scaffold(
       body: SafeArea(
@@ -42,7 +47,7 @@ class HomeScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Hello, ${user?.displayName.split(' ').first ?? 'Learner'}',
+                              s.hello(firstName),
                               style: context.textTheme.headlineSmall,
                             ),
                             const SizedBox(height: 4),
@@ -52,7 +57,9 @@ class HomeScreen extends ConsumerWidget {
                                     size: 18, color: AppColors.streakOrange),
                                 const SizedBox(width: 4),
                                 Text(
-                                  '${user?.streak ?? home.goal.minutesDone} day streak',
+                                  s.dayStreak(
+                                    user?.streak ?? home.goal.minutesDone,
+                                  ),
                                   style: context.textTheme.bodySmall?.copyWith(
                                     color: AppColors.streakOrange,
                                     fontWeight: FontWeight.w600,
@@ -84,7 +91,11 @@ class HomeScreen extends ConsumerWidget {
               SliverToBoxAdapter(
                 child: _DailyGoalCard(
                   progress: home.goal.overallProgress,
-                  goalMap: ref.watch(goalMapControllerProvider).plan,
+                  goalMap: goalMap,
+                  title: goalMap == null ? s.dailyGoal : s.goalMap,
+                  subtitle: goalMap == null
+                      ? s.dailyGoalHint
+                      : 'Lv ${goalMap.startLevel}→${goalMap.targetLevel} · ${goalMap.daysLeft}d · ${goalMap.todayDone ? '✓' : ''}',
                   onTap: () => context.push('/goal-map'),
                 )
                     .animate()
@@ -95,7 +106,7 @@ class HomeScreen extends ConsumerWidget {
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
                   child: Text(
-                    'Explore',
+                    s.explore,
                     style: context.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -110,7 +121,7 @@ class HomeScreen extends ConsumerWidget {
                       Expanded(
                         child: _ExploreShortcut(
                           icon: Icons.explore_outlined,
-                          label: 'Discover',
+                          label: s.discover,
                           color: AppColors.secondary,
                           onTap: () => context.push('/discover'),
                         ),
@@ -119,7 +130,7 @@ class HomeScreen extends ConsumerWidget {
                       Expanded(
                         child: _ExploreShortcut(
                           icon: Icons.bookmark_border_rounded,
-                          label: 'Saves',
+                          label: s.saves,
                           color: AppColors.accent,
                           onTap: () => context.push('/saves'),
                         ),
@@ -128,7 +139,7 @@ class HomeScreen extends ConsumerWidget {
                       Expanded(
                         child: _ExploreShortcut(
                           icon: Icons.sports_esports_outlined,
-                          label: 'Games',
+                          label: s.games,
                           color: AppColors.primary,
                           onTap: () => context.push('/games'),
                         ),
@@ -137,7 +148,7 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              const SectionHeader(title: 'Continue learning').asSliver,
+              SectionHeader(title: s.continueLearning).asSliver,
               SliverToBoxAdapter(
                 child: SizedBox(
                   height: 112,
@@ -147,39 +158,39 @@ class HomeScreen extends ConsumerWidget {
                     children: [
                       _ContinueCard(
                         icon: Icons.sports_esports_outlined,
-                        title: 'Games',
-                        subtitle: 'Quests & cards',
+                        title: s.games,
+                        subtitle: s.questsCards,
                         color: AppColors.primary,
                         onTap: () => context.push('/games'),
                       ),
                       _ContinueCard(
                         icon: Icons.style_outlined,
-                        title: 'Flashcards',
-                        subtitle: '${home.reviewCount} due',
+                        title: s.flashcards,
+                        subtitle: s.dueCount(home.reviewCount),
                         color: AppColors.secondary,
                         onTap: () => context.push('/games/flashcards'),
                       ),
                       _ContinueCard(
                         icon: Icons.mic_none_rounded,
-                        title: 'Speaking',
-                        subtitle: 'Voice coach',
+                        title: s.speaking,
+                        subtitle: s.voiceCoach,
                         color: AppColors.accent,
                         onTap: () => context.push('/ai/voice'),
                       ),
                       _ContinueCard(
                         icon: Icons.groups_2_outlined,
-                        title: 'Social',
-                        subtitle: 'Rooms & tables',
+                        title: s.navRooms,
+                        subtitle: s.roomsTables,
                         color: AppColors.premiumPurple,
-                        onTap: () => context.push('/social'),
+                        onTap: () => context.go('/rooms'),
                       ),
                     ],
                   ),
                 ),
               ),
               SectionHeader(
-                title: 'AI suggestions',
-                actionLabel: 'Games',
+                title: s.aiSuggestions,
+                actionLabel: s.games,
                 onAction: () => context.push('/games'),
               ).asSliver,
               SliverToBoxAdapter(
@@ -203,8 +214,8 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
               SectionHeader(
-                title: 'Online now',
-                actionLabel: 'Discover',
+                title: s.onlineNow,
+                actionLabel: s.discover,
                 onAction: () => context.push('/discover'),
               ).asSliver,
               SliverToBoxAdapter(
@@ -247,8 +258,8 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
               SectionHeader(
-                title: 'Recommended friends',
-                actionLabel: 'See all',
+                title: s.recommendedFriends,
+                actionLabel: s.seeAll,
                 onAction: () => context.push('/discover'),
               ).asSliver,
               SliverList.builder(
@@ -318,7 +329,7 @@ class HomeScreen extends ConsumerWidget {
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 visualDensity: VisualDensity.compact,
                               ),
-                              child: const Text('Chat'),
+                              child: Text(s.chat),
                             ),
                           ),
                         ],
@@ -328,9 +339,9 @@ class HomeScreen extends ConsumerWidget {
                 },
               ),
               SectionHeader(
-                title: 'Recent chats',
-                actionLabel: 'Open',
-                onAction: () => context.go('/chats'),
+                title: s.recentChats,
+                actionLabel: s.open,
+                onAction: () => context.go('/rooms/inbox'),
               ).asSliver,
               SliverList.builder(
                 itemCount: home.recentChats.length,
@@ -382,21 +393,21 @@ class _DailyGoalCard extends StatelessWidget {
   const _DailyGoalCard({
     required this.progress,
     required this.onTap,
+    required this.title,
+    required this.subtitle,
     this.goalMap,
   });
 
   final double progress;
   final VoidCallback onTap;
+  final String title;
+  final String subtitle;
   final GoalMapPlan? goalMap;
 
   @override
   Widget build(BuildContext context) {
     final mapProgress = goalMap?.levelProgress;
     final shown = mapProgress ?? progress;
-    final title = goalMap == null ? 'Daily goal' : 'Goal Map';
-    final subtitle = goalMap == null
-        ? 'Tap to set a level goal by date — we track you every day.'
-        : 'Lv ${goalMap!.startLevel}→${goalMap!.targetLevel} · ${goalMap!.daysLeft}d left · ${goalMap!.todayDone ? 'Today ✓' : 'Log today'}';
 
     return Material(
       color: Colors.transparent,

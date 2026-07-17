@@ -121,7 +121,7 @@ class GroupInfoScreen extends ConsumerWidget {
             isOutlined: true,
             onPressed: () {
               ref.read(conversationsProvider.notifier).leaveGroup(groupId);
-              context.go('/chats');
+              context.go('/rooms');
             },
           ),
         ],

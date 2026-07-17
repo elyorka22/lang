@@ -53,7 +53,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
           members: _selected.toList(),
         );
     if (!mounted) return;
-    context.go('/chats');
+    context.go('/rooms');
     context.push('/chat/${group.id}');
   }
 
