@@ -47,6 +47,16 @@ class ApiEndpoints {
   static String leaveGroup(String id) => '/groups/$id/leave';
   static String groupMessages(String id) => '/groups/$id/messages';
 
+  // Social: rooms, tables, mentors, karma
+  static const String socialRooms = '/social/rooms';
+  static String socialRoom(String id) => '/social/rooms/$id';
+  static const String socialTables = '/social/tables';
+  static String socialTable(String id) => '/social/tables/$id';
+  static String joinTable(String id) => '/social/tables/$id/join';
+  static String leaveTable(String id) => '/social/tables/$id/leave';
+  static const String mentors = '/social/mentors';
+  static const String correctionKarma = '/social/karma/correction';
+
   // AI
   static const String aiChat = '/ai/chat';
   static const String aiTranslate = '/ai/translate';

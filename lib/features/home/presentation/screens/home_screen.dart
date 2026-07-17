@@ -114,6 +114,13 @@ class HomeScreen extends ConsumerWidget {
                         color: AppColors.accent,
                         onTap: () => context.push('/ai/voice'),
                       ),
+                      _ContinueCard(
+                        icon: Icons.groups_2_outlined,
+                        title: 'Social',
+                        subtitle: 'Rooms & tables',
+                        color: AppColors.premiumPurple,
+                        onTap: () => context.push('/social'),
+                      ),
                     ],
                   ),
                 ),

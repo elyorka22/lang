@@ -22,7 +22,12 @@ import '../features/memorizer/presentation/screens/memorizer_screen.dart';
 import '../features/notifications/presentation/screens/notifications_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
 import '../features/settings/presentation/screens/settings_screen.dart';
+import '../features/social/presentation/screens/host_table_screen.dart';
+import '../features/social/presentation/screens/mentors_screen.dart';
+import '../features/social/presentation/screens/room_detail_screen.dart';
+import '../features/social/presentation/screens/social_hub_screen.dart';
 import '../features/vocabulary/presentation/screens/flashcards_screen.dart';
+import '../shared/models/social_models.dart';
 import '../features/vocabulary/presentation/screens/vocabulary_screen.dart';
 import '../shared/widgets/app_shell.dart';
 
@@ -128,6 +133,33 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: '/social',
+        builder: (_, __) => const SocialHubScreen(),
+      ),
+      GoRoute(
+        path: '/social/host',
+        builder: (_, state) {
+          final topicName = state.uri.queryParameters['topic'];
+          RoomTopic? topic;
+          if (topicName != null) {
+            for (final t in RoomTopic.values) {
+              if (t.name == topicName) topic = t;
+            }
+          }
+          return HostTableScreen(initialTopic: topic);
+        },
+      ),
+      GoRoute(
+        path: '/social/mentors',
+        builder: (_, __) => const MentorsScreen(),
+      ),
+      GoRoute(
+        path: '/social/rooms/:id',
+        builder: (_, state) => RoomDetailScreen(
+          roomId: state.pathParameters['id']!,
+        ),
       ),
       GoRoute(
         path: '/chat/:id',

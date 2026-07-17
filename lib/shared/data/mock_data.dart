@@ -47,7 +47,7 @@ class MockData {
       streak: 45,
       xp: 9200,
       level: 22,
-      badges: const ['polyglot'],
+      badges: const ['polyglot', 'mentor'],
       isFriend: true,
     ),
     UserProfile(
@@ -66,6 +66,7 @@ class MockData {
       streak: 7,
       xp: 3100,
       level: 11,
+      badges: const ['mentor'],
     ),
     UserProfile(
       id: 'u3',

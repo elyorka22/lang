@@ -9,6 +9,7 @@ import '../../../../core/utils/extensions.dart';
 import '../../../../shared/models/message.dart';
 import '../../../../shared/widgets/app_avatar.dart';
 import '../../../memorizer/presentation/widgets/save_to_memorizer_sheet.dart';
+import '../../../social/application/social_controller.dart';
 import '../../application/chat_controller.dart';
 
 class ChatRoomScreen extends ConsumerStatefulWidget {
@@ -237,6 +238,21 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                   context.showSnack('AI improve endpoint: /ai/improve');
                 },
               ),
+              if (!isMine && message.senderId != 'system')
+                ListTile(
+                  leading: const Icon(Icons.favorite_outline),
+                  title: const Text('Thanks for correction (+karma)'),
+                  subtitle: Text('+$karmaPerThanks XP to helper'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    ref
+                        .read(socialControllerProvider.notifier)
+                        .awardCorrectionKarma(helperUserId: message.senderId);
+                    context.showSnack(
+                      'Karma sent · helpers unlock Mentor at $mentorKarmaThreshold',
+                    );
+                  },
+                ),
               ListTile(
                 leading: const Icon(Icons.bookmark_add_outlined),
                 title: const Text('Save to Запоминалка'),

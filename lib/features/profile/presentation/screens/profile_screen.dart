@@ -75,6 +75,36 @@ class ProfileScreen extends ConsumerWidget {
               color: AppColors.textSecondary,
             ),
           ),
+          if (user.badges.contains('mentor')) ...[
+            const SizedBox(height: 8),
+            Center(
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.primarySurface,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.military_tech,
+                      size: 18,
+                      color: AppColors.primaryDark,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Mentor',
+                      style: context.textTheme.labelLarge?.copyWith(
+                        color: AppColors.primaryDark,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
           if (user.country != null)
             Text(
               user.country!,
@@ -113,6 +143,12 @@ class ProfileScreen extends ConsumerWidget {
             LinguaButton(
               label: 'Learning stats',
               onPressed: () => context.push('/learning'),
+            ),
+            const SizedBox(height: 8),
+            LinguaButton(
+              label: 'Social & mentors',
+              isOutlined: true,
+              onPressed: () => context.push('/social'),
             ),
             const SizedBox(height: 16),
           ],
