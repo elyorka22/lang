@@ -8,6 +8,7 @@ import '../../../../core/utils/extensions.dart';
 import '../../../../shared/data/mock_data.dart';
 import '../../../../shared/widgets/app_avatar.dart';
 import '../../../../shared/widgets/lingua_button.dart';
+import '../../../../shared/widgets/safe_body.dart';
 import '../../../auth/application/auth_controller.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -48,9 +49,10 @@ class ProfileScreen extends ConsumerWidget {
             ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        children: [
+      body: SafeBody(
+        child: ListView(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          children: [
           Center(
             child: AppAvatar(
               name: user.displayName,
@@ -155,6 +157,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ],
         ],
+        ),
       ),
     );
   }
@@ -214,28 +217,30 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     }
     return Scaffold(
       appBar: AppBar(title: const Text('Edit profile')),
-      body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        children: [
-          TextField(
-            controller: _name,
-            decoration: const InputDecoration(labelText: 'Display name'),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _bio,
-            maxLines: 4,
-            decoration: const InputDecoration(labelText: 'Bio'),
-          ),
-          const SizedBox(height: 24),
-          LinguaButton(
-            label: 'Save',
-            onPressed: () {
-              context.showSnack('Profile updated');
-              context.pop();
-            },
-          ),
-        ],
+      body: SafeBody(
+        child: ListView(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          children: [
+            TextField(
+              controller: _name,
+              decoration: const InputDecoration(labelText: 'Display name'),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _bio,
+              maxLines: 4,
+              decoration: const InputDecoration(labelText: 'Bio'),
+            ),
+            const SizedBox(height: 24),
+            LinguaButton(
+              label: 'Save',
+              onPressed: () {
+                context.showSnack('Profile updated');
+                context.pop();
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

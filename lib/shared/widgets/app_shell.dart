@@ -20,38 +20,43 @@ class AppShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: _onTap,
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home_rounded, color: AppColors.primary),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.explore_outlined),
-            selectedIcon: Icon(Icons.explore_rounded, color: AppColors.primary),
-            label: 'Discover',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.chat_bubble_outline_rounded),
-            selectedIcon:
-                Icon(Icons.chat_bubble_rounded, color: AppColors.primary),
-            label: 'Chats',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.smart_toy_outlined),
-            selectedIcon:
-                Icon(Icons.smart_toy_rounded, color: AppColors.primary),
-            label: 'AI',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.person_outline_rounded),
-            selectedIcon: Icon(Icons.person_rounded, color: AppColors.primary),
-            label: 'Profile',
-          ),
-        ],
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: NavigationBar(
+          selectedIndex: navigationShell.currentIndex,
+          onDestinationSelected: _onTap,
+          destinations: [
+            NavigationDestination(
+              icon: const Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home_rounded, color: AppColors.primary),
+              label: 'Home',
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.explore_outlined),
+              selectedIcon:
+                  Icon(Icons.explore_rounded, color: AppColors.primary),
+              label: 'Discover',
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.chat_bubble_outline_rounded),
+              selectedIcon:
+                  Icon(Icons.chat_bubble_rounded, color: AppColors.primary),
+              label: 'Chats',
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.smart_toy_outlined),
+              selectedIcon:
+                  Icon(Icons.smart_toy_rounded, color: AppColors.primary),
+              label: 'AI',
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.person_outline_rounded),
+              selectedIcon:
+                  Icon(Icons.person_rounded, color: AppColors.primary),
+              label: 'Profile',
+            ),
+          ],
+        ),
       ),
     );
   }

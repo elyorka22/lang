@@ -10,6 +10,7 @@ import '../../../../shared/models/conversation.dart';
 import '../../../../shared/models/user_profile.dart';
 import '../../../../shared/widgets/app_avatar.dart';
 import '../../../../shared/widgets/lingua_button.dart';
+import '../../../../shared/widgets/safe_body.dart';
 import '../../application/chat_controller.dart';
 
 class GroupInfoScreen extends ConsumerWidget {
@@ -48,9 +49,10 @@ class GroupInfoScreen extends ConsumerWidget {
             ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        children: [
+      body: SafeBody(
+        child: ListView(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          children: [
           Center(
             child: Container(
               width: 96,
@@ -135,6 +137,7 @@ class GroupInfoScreen extends ConsumerWidget {
             },
           ),
         ],
+        ),
       ),
     );
   }

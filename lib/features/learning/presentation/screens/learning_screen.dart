@@ -6,6 +6,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../shared/data/mock_data.dart';
 import '../../../../shared/widgets/lingua_button.dart';
+import '../../../../shared/widgets/safe_body.dart';
 
 class LearningScreen extends StatelessWidget {
   const LearningScreen({super.key});
@@ -15,9 +16,10 @@ class LearningScreen extends StatelessWidget {
     final stats = MockData.stats;
     return Scaffold(
       appBar: AppBar(title: const Text('Learning')),
-      body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        children: [
+      body: SafeBody(
+        child: ListView(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          children: [
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -108,6 +110,7 @@ class LearningScreen extends StatelessWidget {
             onPressed: () => context.push('/premium'),
           ),
         ],
+        ),
       ),
     );
   }
@@ -120,9 +123,10 @@ class PremiumScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Lingua Premium')),
-      body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        children: [
+      body: SafeBody(
+        child: ListView(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          children: [
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -171,6 +175,7 @@ class PremiumScreen extends StatelessWidget {
             onPressed: () => context.showSnack('Connect StoreKit / Play Billing'),
           ),
         ],
+        ),
       ),
     );
   }

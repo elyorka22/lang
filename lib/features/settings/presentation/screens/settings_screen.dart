@@ -6,6 +6,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/providers/theme_provider.dart';
 import '../../../../shared/widgets/lingua_button.dart';
+import '../../../../shared/widgets/safe_body.dart';
 import '../../../auth/application/auth_controller.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -17,8 +18,9 @@ class SettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
-      body: ListView(
-        children: [
+      body: SafeBody(
+        child: ListView(
+          children: [
           const ListTile(
             title: Text('Preferences'),
             dense: true,
@@ -134,6 +136,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
         ],
+        ),
       ),
     );
   }

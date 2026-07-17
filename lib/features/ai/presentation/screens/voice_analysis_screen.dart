@@ -7,6 +7,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../shared/models/learning_stats.dart';
 import '../../../../shared/widgets/lingua_button.dart';
+import '../../../../shared/widgets/safe_body.dart';
 import '../../application/ai_controller.dart';
 
 class VoiceAnalysisScreen extends ConsumerStatefulWidget {
@@ -40,9 +41,10 @@ class _VoiceAnalysisScreenState extends ConsumerState<VoiceAnalysisScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Voice analysis')),
-      body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        children: [
+      body: SafeBody(
+        child: ListView(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          children: [
           Text(
             'Record a short phrase. AI returns pronunciation, fluency, accent, and coaching tips.',
             style: context.textTheme.bodyMedium,
@@ -134,6 +136,7 @@ class _VoiceAnalysisScreenState extends ConsumerState<VoiceAnalysisScreen> {
             ),
           ],
         ],
+        ),
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../shared/widgets/empty_state.dart';
+import '../../../../shared/widgets/safe_body.dart';
 import '../../application/vocabulary_controller.dart';
 
 class VocabularyScreen extends ConsumerWidget {
@@ -13,6 +14,7 @@ class VocabularyScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final items = ref.watch(vocabularyProvider);
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return Scaffold(
       appBar: AppBar(
@@ -30,12 +32,15 @@ class VocabularyScreen extends ConsumerWidget {
         label: const Text('Review'),
       ),
       body: items.isEmpty
-          ? const EmptyState(
-              icon: Icons.menu_book_outlined,
-              title: 'No words yet',
-              subtitle: 'Save words from chats or AI lessons',
+          ? const SafeBody(
+              child: EmptyState(
+                icon: Icons.menu_book_outlined,
+                title: 'No words yet',
+                subtitle: 'Save words from chats or AI lessons',
+              ),
             )
           : ListView.separated(
+              padding: EdgeInsets.only(bottom: bottomInset + 88),
               itemCount: items.length,
               separatorBuilder: (_, __) => const Divider(height: 1),
               itemBuilder: (_, i) {

@@ -47,6 +47,9 @@ class ChatsScreen extends ConsumerWidget {
               ),
             )
           : ListView.separated(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.paddingOf(context).bottom + 88,
+              ),
               itemCount: chats.length,
               separatorBuilder: (_, __) => const Divider(height: 1),
               itemBuilder: (_, i) {
