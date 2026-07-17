@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/storage/local_storage_service.dart';
@@ -8,7 +7,9 @@ final appLocaleProvider =
     StateNotifierProvider<AppLocaleController, AppLanguage>((ref) {
   final storage = ref.watch(localStorageProvider);
   final saved = storage.localeCode;
-  return AppLocaleController(storage, AppLanguages.byCodeOrEnglish(saved));
+  // Prefer English Material-safe default if stored code is corrupt/empty.
+  final initial = AppLanguages.byCode(saved) ?? AppLanguages.english;
+  return AppLocaleController(storage, initial);
 });
 
 class AppLocaleController extends StateNotifier<AppLanguage> {
@@ -20,6 +21,4 @@ class AppLocaleController extends StateNotifier<AppLanguage> {
     state = language;
     await _storage.setLocale(language.code);
   }
-
-  Locale get materialLocale => Locale(state.code);
 }

@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 /// Supported languages in Lingua (practice + app UI).
 /// Add new entries here when expanding language support.
 class AppLanguage {
@@ -176,4 +178,41 @@ class AppLanguages {
   }
 
   static List<String> get names => all.map((l) => l.name).toList();
+
+  /// Locales that Flutter Material / Cupertino ship translations for.
+  /// Uzbek is kept as a user preference but Material UI falls back to English.
+  static const List<Locale> materialSupportedLocales = [
+    Locale('en'),
+    Locale('ru'),
+    Locale('es'),
+    Locale('fr'),
+    Locale('de'),
+    Locale('pt'),
+    Locale('ja'),
+    Locale('it'),
+    Locale('ko'),
+    Locale('zh'),
+    Locale('ar'),
+  ];
+
+  /// Locale used by MaterialApp widgets (must have Global*Localizations).
+  static Locale materialLocaleFor(AppLanguage language) {
+    if (language.code == 'uz') return const Locale('en');
+    for (final locale in materialSupportedLocales) {
+      if (locale.languageCode == language.code) return locale;
+    }
+    return const Locale('en');
+  }
+
+  static Locale resolveMaterialLocale(
+    Locale? locale,
+    Iterable<Locale> supported,
+  ) {
+    if (locale == null) return const Locale('en');
+    for (final item in supported) {
+      if (item.languageCode == locale.languageCode) return item;
+    }
+    // uz and any future codes without Material packs
+    return const Locale('en');
+  }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/constants/app_constants.dart';
@@ -44,9 +45,17 @@ class LinguaApp extends ConsumerWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: themeMode,
-      locale: Locale(appLang.code),
-      supportedLocales: [
-        for (final lang in AppLanguages.all) Locale(lang.code),
+      // Material widgets need a locale with Global*Localizations.
+      // Preference may be uz (no Material pack yet) → fall back safely.
+      locale: AppLanguages.materialLocaleFor(appLang),
+      supportedLocales: AppLanguages.materialSupportedLocales,
+      localeResolutionCallback: (locale, supported) {
+        return AppLanguages.resolveMaterialLocale(locale, supported);
+      },
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
       ],
       routerConfig: router,
     );
