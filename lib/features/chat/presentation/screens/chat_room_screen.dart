@@ -11,6 +11,7 @@ import '../../../../shared/widgets/app_avatar.dart';
 import '../../../memorizer/presentation/widgets/save_to_memorizer_sheet.dart';
 import '../../../social/application/social_controller.dart';
 import '../../application/chat_controller.dart';
+import '../../application/message_translator.dart';
 
 class ChatRoomScreen extends ConsumerStatefulWidget {
   const ChatRoomScreen({super.key, required this.conversationId});
@@ -167,7 +168,20 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                         isMine: mine,
                         showSender: room.isGroup && !mine,
                         senderName: room.senderName(m.senderId),
+                        isTranslating: room.translatingIds.contains(m.id),
                         onLongPress: () => _showActions(m, mine),
+                        onTranslate: m.type == MessageType.text &&
+                                (m.text?.trim().isNotEmpty ?? false)
+                            ? () => _showTranslateSheet(m)
+                            : null,
+                        onHideTranslation: m.translatedText != null
+                            ? () => ref
+                                .read(
+                                  chatRoomProvider(widget.conversationId)
+                                      .notifier,
+                                )
+                                .clearTranslation(m.id)
+                            : null,
                         onSaveSelection: (selected) {
                           showSaveToMemorizerSheet(
                             context: context,
@@ -194,6 +208,66 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     );
   }
 
+  void _showTranslateSheet(ChatMessage message) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                  child: Text(
+                    'Translate message',
+                    style: ctx.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                ...MessageTranslator.targets.map((t) {
+                  return ListTile(
+                    leading: Text(t.flag, style: const TextStyle(fontSize: 22)),
+                    title: Text(t.label),
+                    subtitle: Text('→ ${t.code.toUpperCase()}'),
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      ref
+                          .read(
+                            chatRoomProvider(widget.conversationId).notifier,
+                          )
+                          .translateMessage(
+                            message.id,
+                            targetCode: t.code,
+                          );
+                    },
+                  );
+                }),
+                if (message.translatedText != null)
+                  ListTile(
+                    leading: const Icon(Icons.visibility_off_outlined),
+                    title: const Text('Hide translation'),
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      ref
+                          .read(
+                            chatRoomProvider(widget.conversationId).notifier,
+                          )
+                          .clearTranslation(message.id);
+                    },
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void _showActions(ChatMessage message, bool isMine) {
     showModalBottomSheet<void>(
       context: context,
@@ -201,25 +275,38 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
         return SafeArea(
           child: Wrap(
             children: [
-              ListTile(
-                leading: const Icon(Icons.translate),
-                title: const Text('Translate'),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  ref
-                      .read(chatRoomProvider(widget.conversationId).notifier)
-                      .markTranslated(
-                        message.id,
-                        'How are you today? (demo translation)',
-                      );
-                },
-              ),
+              if (message.type == MessageType.text &&
+                  (message.text?.trim().isNotEmpty ?? false))
+                ListTile(
+                  leading: const Icon(Icons.translate),
+                  title: const Text('Translate'),
+                  subtitle: const Text('Choose language'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _showTranslateSheet(message);
+                  },
+                ),
+              if (message.translatedText != null)
+                ListTile(
+                  leading: const Icon(Icons.visibility_off_outlined),
+                  title: const Text('Hide translation'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    ref
+                        .read(
+                          chatRoomProvider(widget.conversationId).notifier,
+                        )
+                        .clearTranslation(message.id);
+                  },
+                ),
               ListTile(
                 leading: const Icon(Icons.spellcheck),
                 title: const Text('Grammar check'),
                 onTap: () {
                   Navigator.pop(ctx);
-                  context.showSnack('AI grammar check ready for NestJS /ai/grammar');
+                  context.showSnack(
+                    'AI grammar check ready for NestJS /ai/grammar',
+                  );
                 },
               ),
               ListTile(
@@ -324,13 +411,19 @@ class _MessageBubble extends StatelessWidget {
     required this.onSaveSelection,
     this.showSender = false,
     this.senderName = '',
+    this.isTranslating = false,
+    this.onTranslate,
+    this.onHideTranslation,
   });
 
   final ChatMessage message;
   final bool isMine;
   final bool showSender;
   final String senderName;
+  final bool isTranslating;
   final VoidCallback onLongPress;
+  final VoidCallback? onTranslate;
+  final VoidCallback? onHideTranslation;
   final ValueChanged<String> onSaveSelection;
 
   @override
@@ -412,21 +505,82 @@ class _MessageBubble extends StatelessWidget {
                     );
                   },
                 ),
+              if (isTranslating) ...[
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 12,
+                      height: 12,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: fg.withOpacity(0.8),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Translating…',
+                      style: TextStyle(
+                        color: fg.withOpacity(0.8),
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               if (message.translatedText != null) ...[
                 const SizedBox(height: 6),
                 Container(
+                  width: double.infinity,
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Text(
-                    message.translatedText!,
-                    style: TextStyle(
-                      color: fg.withOpacity(0.9),
-                      fontSize: 13,
-                      fontStyle: FontStyle.italic,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.translate,
+                            size: 14,
+                            color: fg.withOpacity(0.75),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Translation',
+                            style: TextStyle(
+                              color: fg.withOpacity(0.75),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const Spacer(),
+                          if (onHideTranslation != null)
+                            GestureDetector(
+                              onTap: onHideTranslation,
+                              child: Icon(
+                                Icons.close,
+                                size: 14,
+                                color: fg.withOpacity(0.7),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        message.translatedText!,
+                        style: TextStyle(
+                          color: fg.withOpacity(0.95),
+                          fontSize: 13,
+                          fontStyle: FontStyle.italic,
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -441,6 +595,17 @@ class _MessageBubble extends StatelessWidget {
                       fontSize: 11,
                     ),
                   ),
+                  if (onTranslate != null) ...[
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: onTranslate,
+                      child: Icon(
+                        Icons.translate,
+                        size: 14,
+                        color: fg.withOpacity(0.75),
+                      ),
+                    ),
+                  ],
                   if (isMine) ...[
                     const SizedBox(width: 4),
                     Icon(

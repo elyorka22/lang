@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../shared/data/mock_data.dart';
+import '../../../shared/models/app_language.dart';
 import '../../../shared/models/conversation.dart';
 
 /// Circular language / country chip under Discover search.
@@ -29,65 +30,17 @@ class LanguageFlagFilter {
     countryCode: '',
   );
 
-  static const filters = <LanguageFlagFilter>[
-    all,
-    LanguageFlagFilter(
-      id: 'es',
-      flag: '🇪🇸',
-      label: 'ES',
-      languageCode: 'es',
-      countryCode: 'ES',
-    ),
-    LanguageFlagFilter(
-      id: 'de',
-      flag: '🇩🇪',
-      label: 'DE',
-      languageCode: 'de',
-      countryCode: 'DE',
-    ),
-    LanguageFlagFilter(
-      id: 'fr',
-      flag: '🇫🇷',
-      label: 'FR',
-      languageCode: 'fr',
-      countryCode: 'FR',
-    ),
-    LanguageFlagFilter(
-      id: 'en',
-      flag: '🇬🇧',
-      label: 'EN',
-      languageCode: 'en',
-      countryCode: 'GB',
-    ),
-    LanguageFlagFilter(
-      id: 'pt',
-      flag: '🇧🇷',
-      label: 'PT',
-      languageCode: 'pt',
-      countryCode: 'BR',
-    ),
-    LanguageFlagFilter(
-      id: 'ja',
-      flag: '🇯🇵',
-      label: 'JA',
-      languageCode: 'ja',
-      countryCode: 'JP',
-    ),
-    LanguageFlagFilter(
-      id: 'it',
-      flag: '🇮🇹',
-      label: 'IT',
-      languageCode: 'it',
-      countryCode: 'IT',
-    ),
-    LanguageFlagFilter(
-      id: 'ko',
-      flag: '🇰🇷',
-      label: 'KO',
-      languageCode: 'ko',
-      countryCode: 'KR',
-    ),
-  ];
+  static List<LanguageFlagFilter> get filters => [
+        all,
+        for (final lang in AppLanguages.discoverFilters)
+          LanguageFlagFilter(
+            id: lang.code,
+            flag: lang.flag,
+            label: lang.shortLabel,
+            languageCode: lang.code,
+            countryCode: lang.countryCode,
+          ),
+      ];
 }
 
 class DiscoverState {

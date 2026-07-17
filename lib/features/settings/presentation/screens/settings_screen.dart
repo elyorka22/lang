@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../shared/models/app_language.dart';
+import '../../../../shared/providers/locale_provider.dart';
 import '../../../../shared/providers/theme_provider.dart';
 import '../../../../shared/widgets/lingua_button.dart';
 import '../../../../shared/widgets/safe_body.dart';
@@ -15,6 +17,7 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
+    final appLang = ref.watch(appLocaleProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
@@ -54,8 +57,46 @@ class SettingsScreen extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.language),
             title: const Text('App language'),
-            subtitle: const Text('English'),
-            onTap: () {},
+            subtitle: Text('${appLang.flag} ${appLang.name}'),
+            onTap: () async {
+              final selected = await showModalBottomSheet<AppLanguage>(
+                context: context,
+                showDragHandle: true,
+                builder: (ctx) => SafeArea(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const ListTile(
+                        title: Text('App language'),
+                        subtitle: Text(
+                          'Russian & Uzbek available now — more coming soon',
+                        ),
+                      ),
+                      ...AppLanguages.appUi.map(
+                        (lang) => ListTile(
+                          leading: Text(
+                            lang.flag,
+                            style: const TextStyle(fontSize: 22),
+                          ),
+                          title: Text(lang.name),
+                          subtitle: Text(lang.nativeName),
+                          trailing: appLang.code == lang.code
+                              ? const Icon(Icons.check, color: Colors.green)
+                              : null,
+                          onTap: () => Navigator.pop(ctx, lang),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
+                ),
+              );
+              if (selected != null) {
+                await ref
+                    .read(appLocaleProvider.notifier)
+                    .setLanguage(selected);
+              }
+            },
           ),
           ListTile(
             leading: const Icon(Icons.notifications_outlined),

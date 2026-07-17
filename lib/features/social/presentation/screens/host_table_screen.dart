@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions.dart';
+import '../../../../shared/models/app_language.dart';
 import '../../../../shared/models/social_models.dart';
 import '../../../../shared/widgets/lingua_button.dart';
 import '../../../../shared/widgets/safe_body.dart';
@@ -22,18 +23,9 @@ class HostTableScreen extends ConsumerStatefulWidget {
 class _HostTableScreenState extends ConsumerState<HostTableScreen> {
   final _title = TextEditingController();
   late RoomTopic _topic;
-  String _language = 'English';
+  String _language = AppLanguages.english.name;
   String _level = 'A2–B2';
   var _creating = false;
-
-  static const _languages = [
-    'English',
-    'Spanish',
-    'French',
-    'German',
-    'Portuguese',
-    'Japanese',
-  ];
 
   static const _levels = ['A1–A2', 'A2–B1', 'A2–B2', 'B1–C1', 'Any'];
 
@@ -109,12 +101,12 @@ class _HostTableScreenState extends ConsumerState<HostTableScreen> {
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
-              children: _languages.map((l) {
+              children: AppLanguages.all.map((lang) {
                 return ChoiceChip(
-                  label: Text(l),
-                  selected: _language == l,
+                  label: Text('${lang.flag} ${lang.name}'),
+                  selected: _language == lang.name,
                   selectedColor: AppColors.primarySurface,
-                  onSelected: (_) => setState(() => _language = l),
+                  onSelected: (_) => setState(() => _language = lang.name),
                 );
               }).toList(),
             ),

@@ -5,6 +5,7 @@ import '../../../shared/data/mock_data.dart';
 import '../../../shared/models/conversation.dart';
 import '../../../shared/models/message.dart';
 import '../../../shared/models/user_profile.dart';
+import 'message_translator.dart';
 
 final conversationsProvider =
     StateNotifierProvider<ConversationsController, List<ChatConversation>>(
@@ -142,6 +143,7 @@ class ChatRoomState {
     this.messages = const [],
     this.isTyping = false,
     this.isLoading = false,
+    this.translatingIds = const {},
   });
 
   final String conversationId;
@@ -153,6 +155,7 @@ class ChatRoomState {
   final List<ChatMessage> messages;
   final bool isTyping;
   final bool isLoading;
+  final Set<String> translatingIds;
 
   ChatRoomState copyWith({
     String? title,
@@ -161,6 +164,7 @@ class ChatRoomState {
     bool? isLoading,
     List<UserProfile>? members,
     int? memberCount,
+    Set<String>? translatingIds,
   }) {
     return ChatRoomState(
       conversationId: conversationId,
@@ -172,6 +176,7 @@ class ChatRoomState {
       messages: messages ?? this.messages,
       isTyping: isTyping ?? this.isTyping,
       isLoading: isLoading ?? this.isLoading,
+      translatingIds: translatingIds ?? this.translatingIds,
     );
   }
 
@@ -291,6 +296,55 @@ class ChatRoomController extends StateNotifier<ChatRoomState> {
       messages: state.messages
           .map((m) =>
               m.id == messageId ? m.copyWith(translatedText: translation) : m)
+          .toList(),
+    );
+  }
+
+  Future<void> translateMessage(
+    String messageId, {
+    required String targetCode,
+  }) async {
+    ChatMessage? message;
+    for (final m in state.messages) {
+      if (m.id == messageId) message = m;
+    }
+    final text = message?.text?.trim() ?? '';
+    if (text.isEmpty || state.translatingIds.contains(messageId)) return;
+
+    state = state.copyWith(
+      translatingIds: {...state.translatingIds, messageId},
+    );
+
+    try {
+      final translation = await MessageTranslator.translate(
+        text,
+        targetCode: targetCode,
+      );
+      state = state.copyWith(
+        translatingIds: {...state.translatingIds}..remove(messageId),
+        messages: state.messages
+            .map(
+              (m) => m.id == messageId
+                  ? m.copyWith(translatedText: translation)
+                  : m,
+            )
+            .toList(),
+      );
+    } catch (_) {
+      state = state.copyWith(
+        translatingIds: {...state.translatingIds}..remove(messageId),
+      );
+    }
+  }
+
+  void clearTranslation(String messageId) {
+    state = state.copyWith(
+      messages: state.messages
+          .map(
+            (m) => m.id == messageId
+                ? m.copyWith(clearTranslated: true)
+                : m,
+          )
           .toList(),
     );
   }

@@ -6,6 +6,8 @@ import 'core/constants/app_constants.dart';
 import 'core/storage/local_storage_service.dart';
 import 'core/theme/app_theme.dart';
 import 'routes/app_router.dart';
+import 'shared/models/app_language.dart';
+import 'shared/providers/locale_provider.dart';
 import 'shared/providers/theme_provider.dart';
 
 Future<void> main() async {
@@ -34,6 +36,7 @@ class LinguaApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeProvider);
+    final appLang = ref.watch(appLocaleProvider);
 
     return MaterialApp.router(
       title: AppConstants.appName,
@@ -41,6 +44,10 @@ class LinguaApp extends ConsumerWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: themeMode,
+      locale: Locale(appLang.code),
+      supportedLocales: [
+        for (final lang in AppLanguages.all) Locale(lang.code),
+      ],
       routerConfig: router,
     );
   }

@@ -16,6 +16,7 @@ This Flutter client expects a NestJS API matching `lib/core/network/api_endpoint
 - `ai` — chat, translate, grammar, explain, improve, pronounce, voice-analysis, lessons, quiz, roleplay (rate-limited)
 - `vocabulary` — CRUD + SRS scheduling
 - `learning` — daily goals, XP, streaks, achievements, leaderboard
+- Languages catalog: EN, RU, UZ (+ ES/FR/DE/PT/JA/IT/KO/ZH/AR) — extend in `AppLanguages`
 - `notifications` — FCM token registry + push jobs
 - `billing` — Premium entitlements
 

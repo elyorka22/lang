@@ -40,6 +40,7 @@ class ChatMessage extends Equatable {
     String? text,
     bool? isEdited,
     String? translatedText,
+    bool clearTranslated = false,
   }) {
     return ChatMessage(
       id: id,
@@ -52,7 +53,8 @@ class ChatMessage extends Equatable {
       replyToId: replyToId,
       status: status ?? this.status,
       isEdited: isEdited ?? this.isEdited,
-      translatedText: translatedText ?? this.translatedText,
+      translatedText:
+          clearTranslated ? null : (translatedText ?? this.translatedText),
       createdAt: createdAt,
     );
   }
@@ -95,5 +97,5 @@ class ChatMessage extends Equatable {
       };
 
   @override
-  List<Object?> get props => [id, text, status, isEdited];
+  List<Object?> get props => [id, text, status, isEdited, translatedText];
 }

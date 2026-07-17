@@ -6,6 +6,7 @@ import '../../../../core/storage/local_storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions.dart';
+import '../../../../shared/models/app_language.dart';
 import '../../../../shared/widgets/lingua_button.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -22,19 +23,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   String? _learning;
   String? _level;
   final _interests = <String>{};
-
-  static const _languages = [
-    'English',
-    'Spanish',
-    'French',
-    'German',
-    'Japanese',
-    'Portuguese',
-    'Italian',
-    'Korean',
-    'Chinese',
-    'Arabic',
-  ];
 
   static const _levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
   static const _interestOptions = [
@@ -141,12 +129,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: _languages.map((lang) {
-            final active = selected == lang;
+          children: AppLanguages.all.map((lang) {
+            final active = selected == lang.name;
             return ChoiceChip(
-              label: Text(lang),
+              label: Text('${lang.flag} ${lang.name}'),
               selected: active,
-              onSelected: (_) => onSelect(lang),
+              onSelected: (_) => onSelect(lang.name),
               selectedColor: AppColors.primarySurface,
               labelStyle: TextStyle(
                 color: active ? AppColors.primaryDark : null,
