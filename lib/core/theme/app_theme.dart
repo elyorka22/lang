@@ -60,7 +60,7 @@ class AppTheme {
             isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
         titleTextStyle: textTheme.titleLarge,
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0,
         color: isDark ? AppColors.surfaceElevatedDark : AppColors.surfaceElevated,
         shape: RoundedRectangleBorder(borderRadius: AppRadius.borderLg),
@@ -160,8 +160,8 @@ class AppTheme {
         backgroundColor:
             isDark ? AppColors.surfaceDark : AppColors.background,
         indicatorColor: AppColors.primarySurface,
-        labelTextStyle: MaterialStateProperty.resolveWith((states) {
-          final selected = states.contains(MaterialState.selected);
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
           return textTheme.labelSmall?.copyWith(
             fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
             color: selected
@@ -171,8 +171,8 @@ class AppTheme {
                     : AppColors.textTertiary),
           );
         }),
-        iconTheme: MaterialStateProperty.resolveWith((states) {
-          final selected = states.contains(MaterialState.selected);
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
           return IconThemeData(
             color: selected
                 ? AppColors.primary
@@ -200,7 +200,7 @@ class AppTheme {
         backgroundColor: isDark ? AppColors.surfaceElevatedDark : AppColors.textPrimary,
         shape: RoundedRectangleBorder(borderRadius: AppRadius.borderMd),
       ),
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor:
             isDark ? AppColors.surfaceElevatedDark : AppColors.background,
         shape: RoundedRectangleBorder(borderRadius: AppRadius.borderXl),

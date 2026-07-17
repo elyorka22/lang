@@ -167,7 +167,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.auto_fix),
+                leading: const Icon(Icons.auto_awesome),
                 title: const Text('Improve sentence'),
                 onTap: () {
                   Navigator.pop(ctx);

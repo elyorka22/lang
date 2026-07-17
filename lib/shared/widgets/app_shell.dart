@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../core/theme/app_colors.dart';
+import '../../core/theme/app_colors.dart';
 
 /// Bottom navigation shell — Telegram-smooth Adaptive tabs.
 class AppShell extends StatelessWidget {
@@ -23,30 +23,31 @@ class AppShell extends StatelessWidget {
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: _onTap,
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
+            icon: const Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home_rounded, color: AppColors.primary),
             label: 'Home',
           ),
           NavigationDestination(
-            icon: Icon(Icons.explore_outlined),
+            icon: const Icon(Icons.explore_outlined),
             selectedIcon: Icon(Icons.explore_rounded, color: AppColors.primary),
             label: 'Discover',
           ),
           NavigationDestination(
-            icon: Icon(Icons.chat_bubble_outline_rounded),
+            icon: const Icon(Icons.chat_bubble_outline_rounded),
             selectedIcon:
                 Icon(Icons.chat_bubble_rounded, color: AppColors.primary),
             label: 'Chats',
           ),
           NavigationDestination(
-            icon: Icon(Icons.smart_toy_outlined),
-            selectedIcon: Icon(Icons.smart_toy_rounded, color: AppColors.primary),
+            icon: const Icon(Icons.smart_toy_outlined),
+            selectedIcon:
+                Icon(Icons.smart_toy_rounded, color: AppColors.primary),
             label: 'AI',
           ),
           NavigationDestination(
-            icon: Icon(Icons.person_outline_rounded),
+            icon: const Icon(Icons.person_outline_rounded),
             selectedIcon: Icon(Icons.person_rounded, color: AppColors.primary),
             label: 'Profile',
           ),
