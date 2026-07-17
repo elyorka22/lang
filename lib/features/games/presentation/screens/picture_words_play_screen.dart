@@ -103,11 +103,12 @@ class _PictureWordsPlayScreenState
       );
     }
 
-    final progress = (pw.foundCount / level.minWords).clamp(0.0, 1.0);
+    final active = level;
+    final progress = (pw.foundCount / active.minWords).clamp(0.0, 1.0);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Level ${level.level} · ${level.word}'),
+        title: Text('Level ${active.level} · ${active.word}'),
       ),
       body: SafeBody(
         child: Column(
@@ -116,7 +117,7 @@ class _PictureWordsPlayScreenState
               value: progress,
               minHeight: 3,
               backgroundColor: AppColors.border,
-              color: level.color,
+              color: active.color,
             ),
             Expanded(
               child: ListView(
@@ -130,30 +131,30 @@ class _PictureWordsPlayScreenState
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            level.color.withOpacity(0.22),
-                            level.color.withOpacity(0.08),
+                            active.color.withOpacity(0.22),
+                            active.color.withOpacity(0.08),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: level.color.withOpacity(0.35),
+                          color: active.color.withOpacity(0.35),
                         ),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(level.icon, size: 96, color: level.color),
+                          Icon(active.icon, size: 96, color: active.color),
                           const SizedBox(height: 12),
                           Text(
-                            level.word,
+                            active.word,
                             style: context.textTheme.headlineMedium?.copyWith(
                               fontWeight: FontWeight.w800,
-                              color: level.color,
+                              color: active.color,
                             ),
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            level.hint,
+                            active.hint,
                             textAlign: TextAlign.center,
                             style: context.textTheme.bodyMedium?.copyWith(
                               color: AppColors.textSecondary,
@@ -167,16 +168,16 @@ class _PictureWordsPlayScreenState
                   Row(
                     children: [
                       Text(
-                        'Need ${level.minWords} words',
+                        'Need ${active.minWords} words',
                         style: context.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                       const Spacer(),
                       Text(
-                        '${pw.foundCount}/${level.minWords}',
+                        '${pw.foundCount}/${active.minWords}',
                         style: context.textTheme.titleSmall?.copyWith(
-                          color: level.color,
+                          color: active.color,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -197,7 +198,7 @@ class _PictureWordsPlayScreenState
                       children: pw.foundWords.map((w) {
                         return Chip(
                           label: Text(w),
-                          backgroundColor: level.color.withOpacity(0.12),
+                          backgroundColor: active.color.withOpacity(0.12),
                           side: BorderSide.none,
                         );
                       }).toList(),

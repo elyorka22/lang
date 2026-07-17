@@ -101,20 +101,21 @@ class _QuestChatScreenState extends ConsumerState<QuestChatScreen> {
       );
     }
 
+    final active = quest;
     final doneGoals = games.completedGoalIds;
-    final progress = quest.goals.isEmpty
+    final progress = active.goals.isEmpty
         ? 0.0
-        : doneGoals.where((id) => quest.goals.any((g) => g.id == id)).length /
-            quest.goals.length;
+        : doneGoals.where((id) => active.goals.any((g) => g.id == id)).length /
+            active.goals.length;
 
     return Scaffold(
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(quest.title, style: const TextStyle(fontSize: 16)),
+            Text(active.title, style: const TextStyle(fontSize: 16)),
             Text(
-              '${quest.roleName} · ${quest.theme}',
+              '${active.roleName} · ${active.theme}',
               style: context.textTheme.labelSmall?.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -124,7 +125,7 @@ class _QuestChatScreenState extends ConsumerState<QuestChatScreen> {
         actions: [
           IconButton(
             tooltip: 'Goals',
-            onPressed: () => _showGoals(context, quest, doneGoals),
+            onPressed: () => _showGoals(context, active, doneGoals),
             icon: const Icon(Icons.checklist_rtl),
           ),
         ],
@@ -143,7 +144,7 @@ class _QuestChatScreenState extends ConsumerState<QuestChatScreen> {
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                children: quest.goals.map((g) {
+                children: active.goals.map((g) {
                   final done = doneGoals.contains(g.id);
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
@@ -233,7 +234,8 @@ class _QuestChatScreenState extends ConsumerState<QuestChatScreen> {
                         textInputAction: TextInputAction.send,
                         onSubmitted: (_) => _send(),
                         decoration: InputDecoration(
-                          hintText: 'Speak to the ${quest.roleName.toLowerCase()}…',
+                          hintText:
+                              'Speak to the ${active.roleName.toLowerCase()}…',
                           filled: true,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(24),
