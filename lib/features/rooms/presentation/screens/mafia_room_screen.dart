@@ -138,15 +138,19 @@ class _MafiaRoomScreenState extends ConsumerState<MafiaRoomScreen> {
       );
     }
 
+    // Non-nullable copy so closures (onSend, etc.) can safely use fields.
+    final GameRoom active = room;
+
     ref.listen(gameRoomsProvider, (prev, next) {
       _scrollChatToEnd();
     });
 
-    final me = _findMe(room);
-    final isHost = room.host.id == 'me';
-    final isNight = room.phase == MafiaPhase.night;
-    final isDay = room.phase == MafiaPhase.day || room.phase == MafiaPhase.voting;
-    final theme = _MafiaTheme.forPhase(room.phase, context.isDark);
+    final me = _findMe(active);
+    final isHost = active.host.id == 'me';
+    final isNight = active.phase == MafiaPhase.night;
+    final isDay =
+        active.phase == MafiaPhase.day || active.phase == MafiaPhase.voting;
+    final theme = _MafiaTheme.forPhase(active.phase, context.isDark);
 
     return Scaffold(
       backgroundColor: theme.bg,
@@ -158,7 +162,7 @@ class _MafiaRoomScreenState extends ConsumerState<MafiaRoomScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              room.title,
+              active.title,
               style: TextStyle(
                 color: theme.fg,
                 fontWeight: FontWeight.w700,
@@ -168,7 +172,7 @@ class _MafiaRoomScreenState extends ConsumerState<MafiaRoomScreen> {
               overflow: TextOverflow.ellipsis,
             ),
             Text(
-              _phaseLabel(s, room),
+              _phaseLabel(s, active),
               style: TextStyle(
                 color: theme.accent,
                 fontSize: 12,
@@ -178,7 +182,7 @@ class _MafiaRoomScreenState extends ConsumerState<MafiaRoomScreen> {
           ],
         ),
         actions: [
-          if (me != null && room.status == GameRoomStatus.open)
+          if (me != null && active.status == GameRoomStatus.open)
             TextButton(
               onPressed: () {
                 ref.read(gameRoomsProvider.notifier).leave(widget.roomId);
@@ -190,17 +194,17 @@ class _MafiaRoomScreenState extends ConsumerState<MafiaRoomScreen> {
       ),
       body: Column(
         children: [
-          _PhaseHeader(room: room, theme: theme, s: s, me: me),
-          _PlayersStrip(room: room, theme: theme),
+          _PhaseHeader(room: active, theme: theme, s: s, me: me),
+          _PlayersStrip(room: active, theme: theme),
           Expanded(
             child: _ChatPane(
-              room: room,
+              room: active,
               theme: theme,
               scrollController: _chatScroll,
               s: s,
             ),
           ),
-          if (room.status == GameRoomStatus.open)
+          if (active.status == GameRoomStatus.open)
             _LobbyActions(
               theme: theme,
               s: s,
@@ -213,9 +217,9 @@ class _MafiaRoomScreenState extends ConsumerState<MafiaRoomScreen> {
                 }
               },
             ),
-          if (room.status == GameRoomStatus.playing && isNight)
+          if (active.status == GameRoomStatus.playing && isNight)
             _NightActions(
-              room: room,
+              room: active,
               theme: theme,
               s: s,
               me: me,
@@ -228,10 +232,10 @@ class _MafiaRoomScreenState extends ConsumerState<MafiaRoomScreen> {
                 ref.read(gameRoomsProvider.notifier).resolveNight(widget.roomId);
               },
             ),
-          if (room.status == GameRoomStatus.playing && isDay) ...[
+          if (active.status == GameRoomStatus.playing && isDay) ...[
             if (_showVotePanel)
               _VotePanel(
-                room: room,
+                room: active,
                 theme: theme,
                 s: s,
                 me: me,
@@ -263,7 +267,7 @@ class _MafiaRoomScreenState extends ConsumerState<MafiaRoomScreen> {
                 ),
               ),
           ],
-          if (room.status == GameRoomStatus.ended)
+          if (active.status == GameRoomStatus.ended)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: LinguaButton(
@@ -275,8 +279,8 @@ class _MafiaRoomScreenState extends ConsumerState<MafiaRoomScreen> {
             controller: _chatCtrl,
             theme: theme,
             s: s,
-            enabled: room.chatOpen && (me?.isAlive ?? true),
-            hint: !room.chatOpen
+            enabled: active.chatOpen && (me?.isAlive ?? true),
+            hint: !active.chatOpen
                 ? s.nightSilence
                 : (me != null && !me.isAlive ? s.youAreOut : s.discussHint),
             onSend: () {
@@ -287,7 +291,7 @@ class _MafiaRoomScreenState extends ConsumerState<MafiaRoomScreen> {
               if (ok) {
                 _chatCtrl.clear();
                 _scrollChatToEnd();
-              } else if (!room.chatOpen) {
+              } else if (!active.chatOpen) {
                 context.showSnack(s.nightSilence, isError: true);
               }
             },
