@@ -80,6 +80,12 @@ class GameRoomPlayer extends Equatable {
   final MafiaRole? role;
   final bool isAlive;
 
+  String get shortName {
+    final parts = user.displayName.trim().split(RegExp(r'\s+'));
+    if (parts.isEmpty || parts.first.isEmpty) return user.displayName;
+    return parts.first;
+  }
+
   GameRoomPlayer copyWith({
     MafiaRole? role,
     bool? isAlive,
@@ -93,6 +99,27 @@ class GameRoomPlayer extends Equatable {
 
   @override
   List<Object?> get props => [user.id, role, isAlive];
+}
+
+class GameRoomMessage extends Equatable {
+  const GameRoomMessage({
+    required this.id,
+    required this.senderId,
+    required this.senderName,
+    required this.text,
+    required this.sentAt,
+    this.isSystem = false,
+  });
+
+  final String id;
+  final String senderId;
+  final String senderName;
+  final String text;
+  final DateTime sentAt;
+  final bool isSystem;
+
+  @override
+  List<Object?> get props => [id, senderId, text, sentAt];
 }
 
 /// Multiplayer game session treated as a room (like groups & tables).
@@ -109,6 +136,7 @@ class GameRoom extends Equatable {
     this.phase = MafiaPhase.lobby,
     this.round = 0,
     this.lastEvent = '',
+    this.messages = const [],
   });
 
   final String id;
@@ -122,6 +150,7 @@ class GameRoom extends Equatable {
   final MafiaPhase phase;
   final int round;
   final String lastEvent;
+  final List<GameRoomMessage> messages;
 
   int get seatsLeft => kind.maxPlayers - players.length;
   bool get isJoinable =>
@@ -130,12 +159,20 @@ class GameRoom extends Equatable {
       status == GameRoomStatus.open &&
       players.length >= kind.minPlayers;
 
+  /// Chat is open in lobby and during day discussion / voting.
+  bool get chatOpen =>
+      status == GameRoomStatus.open ||
+      phase == MafiaPhase.day ||
+      phase == MafiaPhase.voting ||
+      phase == MafiaPhase.ended;
+
   GameRoom copyWith({
     List<GameRoomPlayer>? players,
     GameRoomStatus? status,
     MafiaPhase? phase,
     int? round,
     String? lastEvent,
+    List<GameRoomMessage>? messages,
   }) {
     return GameRoom(
       id: id,
@@ -149,10 +186,11 @@ class GameRoom extends Equatable {
       phase: phase ?? this.phase,
       round: round ?? this.round,
       lastEvent: lastEvent ?? this.lastEvent,
+      messages: messages ?? this.messages,
     );
   }
 
   @override
   List<Object?> get props =>
-      [id, status, phase, round, players.length, lastEvent];
+      [id, status, phase, round, players.length, lastEvent, messages.length];
 }

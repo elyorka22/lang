@@ -83,19 +83,20 @@ class _GoalMapScreenState extends ConsumerState<GoalMapScreen> {
   Future<void> _openCreateSheet() async {
     final user = ref.read(authControllerProvider).user;
     final startLevel = user?.level ?? 1;
+    final existing = ref.read(goalMapControllerProvider).plan;
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
       builder: (ctx) {
         return _CreateGoalSheet(
-          startLevel: startLevel,
-          onSubmit: (target, deadline) async {
+          initialDescription: existing?.title ?? '',
+          onSubmit: (description, deadline) async {
             Navigator.pop(ctx);
             await ref.read(goalMapControllerProvider.notifier).createPlan(
-                  startLevel: startLevel,
-                  targetLevel: target,
+                  description: description,
                   deadline: deadline,
+                  startLevel: startLevel,
                 );
           },
         );
@@ -128,7 +129,7 @@ class _EmptyGoal extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Pick a target level and a date. Every day Lingua tracks whether you stayed on the path.',
+            'Describe your own goal and pick a date. Every day Lingua tracks whether you stayed on the path.',
             textAlign: TextAlign.center,
             style: context.textTheme.bodyMedium?.copyWith(
               color: AppColors.textSecondary,
@@ -149,19 +150,19 @@ class _EmptyGoal extends StatelessWidget {
 
 class _CreateGoalSheet extends StatefulWidget {
   const _CreateGoalSheet({
-    required this.startLevel,
     required this.onSubmit,
+    this.initialDescription = '',
   });
 
-  final int startLevel;
-  final void Function(int targetLevel, DateTime deadline) onSubmit;
+  final String initialDescription;
+  final void Function(String description, DateTime deadline) onSubmit;
 
   @override
   State<_CreateGoalSheet> createState() => _CreateGoalSheetState();
 }
 
 class _CreateGoalSheetState extends State<_CreateGoalSheet> {
-  late int _target;
+  late final TextEditingController _goalCtrl;
   int? _quickDays = 30;
   DateTime? _calendarDate;
 
@@ -170,15 +171,13 @@ class _CreateGoalSheetState extends State<_CreateGoalSheet> {
   @override
   void initState() {
     super.initState();
-    _target = widget.startLevel + 2;
+    _goalCtrl = TextEditingController(text: widget.initialDescription);
   }
 
-  List<int> get _levelOptions {
-    final list = <int>[];
-    for (var i = widget.startLevel + 1; i <= widget.startLevel + 12; i++) {
-      list.add(i);
-    }
-    return list;
+  @override
+  void dispose() {
+    _goalCtrl.dispose();
+    super.dispose();
   }
 
   DateTime get _deadline {
@@ -190,8 +189,9 @@ class _CreateGoalSheetState extends State<_CreateGoalSheet> {
   @override
   Widget build(BuildContext context) {
     final bottom = MediaQuery.paddingOf(context).bottom;
+    final keyboard = MediaQuery.viewInsetsOf(context).bottom;
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, 0, 20, bottom + 16),
+      padding: EdgeInsets.fromLTRB(20, 0, 20, bottom + keyboard + 16),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -204,25 +204,26 @@ class _CreateGoalSheetState extends State<_CreateGoalSheet> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Now level ${widget.startLevel} → choose where you want to be',
+              'Write your goal in your own words',
               style: context.textTheme.bodySmall?.copyWith(
                 color: AppColors.textSecondary,
               ),
             ),
             const SizedBox(height: 16),
-            Text('Target level', style: context.textTheme.titleSmall),
+            Text('Your goal', style: context.textTheme.titleSmall),
             const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _levelOptions.map((lvl) {
-                return ChoiceChip(
-                  label: Text('Lv $lvl'),
-                  selected: _target == lvl,
-                  selectedColor: AppColors.primarySurface,
-                  onSelected: (_) => setState(() => _target = lvl),
-                );
-              }).toList(),
+            TextField(
+              controller: _goalCtrl,
+              minLines: 3,
+              maxLines: 5,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(
+                hintText:
+                    'e.g. Hold a 10-minute conversation in Spanish about travel',
+                border: OutlineInputBorder(),
+                alignLabelWithHint: true,
+              ),
+              onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 20),
             Text('Deadline', style: context.textTheme.titleSmall),
@@ -256,10 +257,10 @@ class _CreateGoalSheetState extends State<_CreateGoalSheet> {
                 final now = DateTime.now();
                 final picked = await showDatePicker(
                   context: context,
-                  initialDate: now.add(const Duration(days: 30)),
+                  initialDate: _calendarDate ?? now.add(const Duration(days: 30)),
                   firstDate: now.add(const Duration(days: 1)),
                   lastDate: now.add(const Duration(days: 365 * 2)),
-                  helpText: 'Reach your level by',
+                  helpText: 'Reach your goal by',
                 );
                 if (picked != null) {
                   setState(() {
@@ -283,7 +284,9 @@ class _CreateGoalSheetState extends State<_CreateGoalSheet> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                'Plan: level ${widget.startLevel} → $_target by ${DateFormat.MMMd().format(_deadline)}',
+                _goalCtrl.text.trim().isEmpty
+                    ? 'Deadline: ${DateFormat.MMMd().format(_deadline)}'
+                    : '${_goalCtrl.text.trim()}\nby ${DateFormat.MMMd().format(_deadline)}',
                 style: context.textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -292,7 +295,9 @@ class _CreateGoalSheetState extends State<_CreateGoalSheet> {
             const SizedBox(height: 16),
             LinguaButton(
               label: 'Start Goal Map',
-              onPressed: () => widget.onSubmit(_target, _deadline),
+              onPressed: _goalCtrl.text.trim().isEmpty
+                  ? null
+                  : () => widget.onSubmit(_goalCtrl.text.trim(), _deadline),
             ),
           ],
         ),
@@ -337,6 +342,8 @@ class _ActiveGoalMap extends StatelessWidget {
             children: [
               Text(
                 plan.title,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
                 style: context.textTheme.titleLarge?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w700,
@@ -344,13 +351,13 @@ class _ActiveGoalMap extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'Level ${plan.startLevel} → ${plan.targetLevel} · by ${fmt.format(plan.deadline)}',
+                'by ${fmt.format(plan.deadline)} · ${plan.daysLeft} days left',
                 style: const TextStyle(color: Colors.white70),
               ),
               const SizedBox(height: 14),
               LinearPercentIndicator(
                 lineHeight: 10,
-                percent: plan.levelProgress,
+                percent: plan.displayProgress,
                 animation: true,
                 barRadius: const Radius.circular(8),
                 backgroundColor: Colors.white24,
@@ -359,7 +366,7 @@ class _ActiveGoalMap extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                '${(plan.levelProgress * 100).round()}% of path · ${plan.daysLeft} days left · ${plan.isOnTrack ? 'On track' : 'Behind — practice today'}',
+                '${(plan.displayProgress * 100).round()}% · ${plan.completedDays} days logged · ${plan.isOnTrack ? 'On track' : 'Behind — practice today'}',
                 style: const TextStyle(color: Colors.white, fontSize: 13),
               ),
             ],
@@ -381,7 +388,7 @@ class _ActiveGoalMap extends StatelessWidget {
                 Text(
                   plan.todayDone
                       ? 'Today’s check-in done · +${plan.dailyLogs[GoalMapPlan.dateKey(DateTime.now())]?.xpEarned ?? 0} XP'
-                      : 'Suggested today: ~${plan.suggestedXpToday} XP toward level ${plan.targetLevel}',
+                      : 'Practice toward your goal today (~${plan.suggestedXpToday} XP)',
                   style: context.textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 12),
@@ -505,7 +512,7 @@ class _MapStep extends StatelessWidget {
                 children: [
                   Text(
                     node.isDeadline
-                        ? 'Finish · Level ${plan.targetLevel}'
+                        ? 'Finish · ${plan.title}'
                         : node.isToday
                             ? 'Today'
                             : DateFormat.MMMd().format(node.date),

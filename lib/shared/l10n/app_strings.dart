@@ -60,6 +60,7 @@ class AppStrings {
     'questsCards': 'Quests & cards',
     'learner': 'Learner',
     'recommendedFriends': 'Recommended friends',
+    'recommendedGroups': 'Recommended groups',
     'seeAll': 'See all',
     'chat': 'Chat',
     'recentChats': 'Recent chats',
@@ -118,6 +119,9 @@ class AppStrings {
     'youAreOut': 'You are out — watch the round.',
     'backToRooms': 'Back to rooms',
     'directInbox': 'Direct chats',
+    'discussHint': 'Discuss here — convince the town',
+    'nightSilence': 'Night silence — chat opens at dawn',
+    'send': 'Send',
   };
 
   static const _ru = <String, String>{
@@ -173,6 +177,7 @@ class AppStrings {
     'questsCards': 'Квесты и карточки',
     'learner': 'Ученик',
     'recommendedFriends': 'Рекомендуемые друзья',
+    'recommendedGroups': 'Рекомендуемые группы',
     'seeAll': 'Все',
     'chat': 'Чат',
     'recentChats': 'Недавние чаты',
@@ -231,6 +236,9 @@ class AppStrings {
     'youAreOut': 'Вы выбыли — смотрите раунд.',
     'backToRooms': 'К комнатам',
     'directInbox': 'Личные чаты',
+    'discussHint': 'Обсуждайте здесь — убедите город',
+    'nightSilence': 'Ночная тишина — чат откроется днём',
+    'send': 'Отправить',
   };
 
   static const _uz = <String, String>{
@@ -286,6 +294,7 @@ class AppStrings {
     'questsCards': 'Kvestlar va kartalar',
     'learner': 'O‘quvchi',
     'recommendedFriends': 'Tavsiya etilgan do‘stlar',
+    'recommendedGroups': 'Tavsiya etilgan guruhlar',
     'seeAll': 'Hammasi',
     'chat': 'Chat',
     'recentChats': 'So‘nggi chatlar',
@@ -344,6 +353,9 @@ class AppStrings {
     'youAreOut': 'Siz chiqdingiz — raundni kuzating.',
     'backToRooms': 'Xonalarga',
     'directInbox': 'Shaxsiy chatlar',
+    'discussHint': 'Bu yerda muhokama qiling',
+    'nightSilence': 'Tun jimligi — suhbat kunduzi ochiladi',
+    'send': 'Yuborish',
   };
 
   Map<String, String> get _table {
@@ -414,6 +426,7 @@ class AppStrings {
   String get questsCards => t('questsCards');
   String get learner => t('learner');
   String get recommendedFriends => t('recommendedFriends');
+  String get recommendedGroups => t('recommendedGroups');
   String get seeAll => t('seeAll');
   String get chat => t('chat');
   String get recentChats => t('recentChats');
@@ -470,6 +483,9 @@ class AppStrings {
   String get youAreOut => t('youAreOut');
   String get backToRooms => t('backToRooms');
   String get directInbox => t('directInbox');
+  String get discussHint => t('discussHint');
+  String get nightSilence => t('nightSilence');
+  String get send => t('send');
 
   String hello(String name) => t('hello', {'name': name});
   String dayStreak(int n) => t('dayStreak', {'n': '$n'});

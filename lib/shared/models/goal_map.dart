@@ -62,7 +62,20 @@ class GoalMapPlan {
 
   double get timeProgress => (daysPassed / totalDays).clamp(0.0, 1.0);
 
-  bool get isOnTrack => levelProgress >= timeProgress - 0.05;
+  /// Progress by daily check-ins toward the deadline (fits free-text goals).
+  double get checkInProgress {
+    if (totalDays <= 0) return 0;
+    return (completedDays / totalDays).clamp(0.0, 1.0);
+  }
+
+  double get displayProgress {
+    // Prefer check-ins for custom goals; fall back to XP path if richer.
+    final byDays = checkInProgress;
+    final byXp = levelProgress;
+    return byDays > byXp ? byDays : byXp;
+  }
+
+  bool get isOnTrack => displayProgress >= timeProgress - 0.05;
 
   bool get isCompleted =>
       levelProgress >= 1.0 || DateTime.now().isAfter(deadline.add(const Duration(days: 1)));

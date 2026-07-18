@@ -95,7 +95,7 @@ class HomeScreen extends ConsumerWidget {
                   title: goalMap == null ? s.dailyGoal : s.goalMap,
                   subtitle: goalMap == null
                       ? s.dailyGoalHint
-                      : 'Lv ${goalMap.startLevel}→${goalMap.targetLevel} · ${goalMap.daysLeft}d · ${goalMap.todayDone ? '✓' : ''}',
+                      : '${goalMap.title} · ${goalMap.daysLeft}d · ${goalMap.todayDone ? '✓' : ''}',
                   onTap: () => context.push('/goal-map'),
                 )
                     .animate()
@@ -258,31 +258,33 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
               SectionHeader(
-                title: s.recommendedFriends,
+                title: s.recommendedGroups,
                 actionLabel: s.seeAll,
                 onAction: () => context.push('/discover'),
               ).asSliver,
               SliverList.builder(
-                itemCount: home.recommended.length,
+                itemCount: home.recommendedGroups.length,
                 itemBuilder: (_, i) {
-                  final u = home.recommended[i];
+                  final g = home.recommendedGroups[i];
+                  final langs = g.languageCodes.isEmpty
+                      ? ''
+                      : g.languageCodes.map((c) => c.toUpperCase()).join(' · ');
                   return Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 8,
                     ),
                     child: InkWell(
-                      onTap: () => context.push('/users/${u.id}'),
+                      onTap: () => context.push('/chat/${g.id}'),
                       borderRadius: BorderRadius.circular(16),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           AppAvatar(
-                            name: u.displayName,
-                            url: u.avatarUrl,
-                            status: u.status,
-                            showStatus: true,
+                            name: g.displayTitle,
+                            url: g.avatarUrl,
                             size: 52,
+                            isGroup: true,
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -291,22 +293,24 @@ class HomeScreen extends ConsumerWidget {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  u.displayName,
+                                  g.displayTitle,
                                   style: context.textTheme.titleSmall,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  '${u.nativeLanguage} → ${u.primaryLearning}',
+                                  g.description.isNotEmpty
+                                      ? g.description
+                                      : '${g.members.length} members',
                                   style: context.textTheme.bodySmall,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                                if (u.country != null) ...[
+                                if (langs.isNotEmpty) ...[
                                   const SizedBox(height: 2),
                                   Text(
-                                    u.country!,
+                                    langs,
                                     style: context.textTheme.labelSmall,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -319,8 +323,7 @@ class HomeScreen extends ConsumerWidget {
                           SizedBox(
                             height: 36,
                             child: FilledButton(
-                              onPressed: () =>
-                                  context.push('/chat/c_${u.id}'),
+                              onPressed: () => context.push('/chat/${g.id}'),
                               style: FilledButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 14,
@@ -329,7 +332,7 @@ class HomeScreen extends ConsumerWidget {
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 visualDensity: VisualDensity.compact,
                               ),
-                              child: Text(s.chat),
+                              child: Text(s.join),
                             ),
                           ),
                         ],
@@ -406,7 +409,7 @@ class _DailyGoalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mapProgress = goalMap?.levelProgress;
+    final mapProgress = goalMap?.displayProgress;
     final shown = mapProgress ?? progress;
 
     return Material(
@@ -474,6 +477,8 @@ class _DailyGoalCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: context.textTheme.bodySmall?.copyWith(
                         color: Colors.white.withOpacity(0.9),
                       ),

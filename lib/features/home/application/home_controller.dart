@@ -9,7 +9,7 @@ class HomeState {
   const HomeState({
     required this.goal,
     required this.suggestions,
-    required this.recommended,
+    required this.recommendedGroups,
     required this.online,
     required this.recentChats,
     required this.reviewCount,
@@ -18,7 +18,7 @@ class HomeState {
 
   final DailyGoal goal;
   final List<String> suggestions;
-  final List<UserProfile> recommended;
+  final List<ChatConversation> recommendedGroups;
   final List<UserProfile> online;
   final List<ChatConversation> recentChats;
   final int reviewCount;
@@ -36,7 +36,7 @@ class HomeController extends StateNotifier<HomeState> {
           const HomeState(
             goal: MockData.dailyGoal,
             suggestions: [],
-            recommended: [],
+            recommendedGroups: [],
             online: [],
             recentChats: [],
             reviewCount: 0,
@@ -49,7 +49,7 @@ class HomeController extends StateNotifier<HomeState> {
     state = HomeState(
       goal: MockData.dailyGoal,
       suggestions: MockData.aiSuggestions,
-      recommended: MockData.users.take(4).toList(),
+      recommendedGroups: MockData.discoverGroups().take(4).toList(),
       online: MockData.users
           .where((u) => u.status == OnlineStatus.online)
           .toList(),

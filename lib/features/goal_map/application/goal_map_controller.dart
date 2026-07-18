@@ -64,23 +64,27 @@ class GoalMapController extends StateNotifier<GoalMapState> {
   }
 
   Future<void> createPlan({
-    required int startLevel,
-    required int targetLevel,
+    required String description,
     required DateTime deadline,
+    int startLevel = 1,
     String language = 'English',
   }) async {
     final start = DateTime.now();
-    final safeTarget = targetLevel <= startLevel ? startLevel + 1 : targetLevel;
+    final text = description.trim();
+    final title = text.isEmpty ? 'My learning goal' : text;
     var safeDeadline = GoalMapPlan.dateOnly(deadline);
     if (!safeDeadline.isAfter(GoalMapPlan.dateOnly(start))) {
       safeDeadline = GoalMapPlan.dateOnly(start).add(const Duration(days: 7));
     }
 
+    // Soft XP track under the hood so daily check-ins still feel rewarding.
+    final targetLevel = startLevel + 3;
+
     final plan = GoalMapPlan(
       id: _uuid.v4(),
-      title: 'Reach level $safeTarget',
+      title: title,
       startLevel: startLevel,
-      targetLevel: safeTarget,
+      targetLevel: targetLevel,
       startDate: start,
       deadline: safeDeadline,
       language: language,
@@ -90,16 +94,16 @@ class GoalMapController extends StateNotifier<GoalMapState> {
   }
 
   Future<void> createPlanInDays({
-    required int startLevel,
-    required int targetLevel,
+    required String description,
     required int days,
+    int startLevel = 1,
     String language = 'English',
   }) {
     final d = days < 1 ? 1 : days;
     return createPlan(
-      startLevel: startLevel,
-      targetLevel: targetLevel,
+      description: description,
       deadline: DateTime.now().add(Duration(days: d)),
+      startLevel: startLevel,
       language: language,
     );
   }

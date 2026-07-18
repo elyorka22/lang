@@ -34,6 +34,16 @@ class GameRoomsController extends StateNotifier<List<GameRoom>> {
           GameRoomPlayer(user: MockData.users[2]),
           GameRoomPlayer(user: MockData.users[3]),
         ],
+        messages: [
+          GameRoomMessage(
+            id: 'm0',
+            senderId: 'system',
+            senderName: 'System',
+            text: 'Waiting for more players…',
+            sentAt: now.subtract(const Duration(minutes: 7)),
+            isSystem: true,
+          ),
+        ],
       ),
       GameRoom(
         id: 'gr_mafia_2',
@@ -49,6 +59,22 @@ class GameRoomsController extends StateNotifier<List<GameRoom>> {
           GameRoomPlayer(user: MockData.users[2]),
           GameRoomPlayer(user: MockData.users[1]),
           GameRoomPlayer(user: MockData.currentUser),
+        ],
+        messages: [
+          GameRoomMessage(
+            id: 'm1',
+            senderId: MockData.users[3].id,
+            senderName: MockData.users[3].displayName.split(' ').first,
+            text: 'Готовы? Давайте начнём!',
+            sentAt: now.subtract(const Duration(minutes: 18)),
+          ),
+          GameRoomMessage(
+            id: 'm2',
+            senderId: MockData.users[0].id,
+            senderName: MockData.users[0].displayName.split(' ').first,
+            text: 'Я готов 👍',
+            sentAt: now.subtract(const Duration(minutes: 17)),
+          ),
         ],
       ),
     ];
@@ -75,6 +101,16 @@ class GameRoomsController extends StateNotifier<List<GameRoom>> {
       language: language,
       createdAt: DateTime.now(),
       players: [GameRoomPlayer(user: me)],
+      messages: [
+        GameRoomMessage(
+          id: _uuid.v4(),
+          senderId: 'system',
+          senderName: 'System',
+          text: 'Room created. Invite friends or start when ready.',
+          sentAt: DateTime.now(),
+          isSystem: true,
+        ),
+      ],
     );
     state = [room, ...state];
     return id;
@@ -87,6 +123,17 @@ class GameRoomsController extends StateNotifier<List<GameRoom>> {
     if (room.players.any((p) => p.user.id == me.id)) return true;
     final next = room.copyWith(
       players: [...room.players, GameRoomPlayer(user: me)],
+      messages: [
+        ...room.messages,
+        GameRoomMessage(
+          id: _uuid.v4(),
+          senderId: 'system',
+          senderName: 'System',
+          text: '${me.displayName.split(' ').first} joined the room.',
+          sentAt: DateTime.now(),
+          isSystem: true,
+        ),
+      ],
     );
     _replace(next);
     return true;
@@ -109,8 +156,70 @@ class GameRoomsController extends StateNotifier<List<GameRoom>> {
     _replace(room.copyWith(players: players));
   }
 
-  /// Assign roles and move to night phase.
-  /// If seats are short, fills with mock players so a solo host can demo.
+  /// Send a chat message. Allowed in lobby, day, voting, ended.
+  bool sendChat(String roomId, String text) {
+    final room = byId(roomId);
+    if (room == null || !room.chatOpen) return false;
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) return false;
+
+    final me = MockData.currentUser;
+    final myPlayer = room.players.where((p) => p.user.id == me.id);
+    if (myPlayer.isEmpty) return false;
+    if (room.status == GameRoomStatus.playing && !myPlayer.first.isAlive) {
+      return false;
+    }
+
+    final msg = GameRoomMessage(
+      id: _uuid.v4(),
+      senderId: me.id,
+      senderName: me.displayName.split(' ').first,
+      text: trimmed,
+      sentAt: DateTime.now(),
+    );
+    var next = room.copyWith(messages: [...room.messages, msg]);
+    _replace(next);
+
+    // Light demo: bots reply during day discussion.
+    if (room.phase == MafiaPhase.day || room.phase == MafiaPhase.voting) {
+      _scheduleBotReply(roomId);
+    }
+    return true;
+  }
+
+  void _scheduleBotReply(String roomId) {
+    Future<void>.delayed(const Duration(milliseconds: 900), () {
+      final room = byId(roomId);
+      if (room == null || !room.chatOpen) return;
+      if (room.phase != MafiaPhase.day && room.phase != MafiaPhase.voting) {
+        return;
+      }
+      final bots = room.players
+          .where((p) => p.isAlive && p.user.id != 'me')
+          .toList();
+      if (bots.isEmpty) return;
+      final bot = bots[_random.nextInt(bots.length)];
+      const lines = [
+        'I think we should look at who was quiet last night.',
+        'Кто-то ведёт себя подозрительно…',
+        'Not sure yet — need more clues.',
+        'Давайте обсудим перед голосованием.',
+        'I trust the detective if they speak up.',
+        'Maybe we vote carefully this round.',
+      ];
+      final reply = GameRoomMessage(
+        id: _uuid.v4(),
+        senderId: bot.user.id,
+        senderName: bot.shortName,
+        text: lines[_random.nextInt(lines.length)],
+        sentAt: DateTime.now(),
+      );
+      final latest = byId(roomId);
+      if (latest == null) return;
+      _replace(latest.copyWith(messages: [...latest.messages, reply]));
+    });
+  }
+
   bool startMafia(String roomId) {
     final room = byId(roomId);
     if (room == null || room.status != GameRoomStatus.open) return false;
@@ -134,26 +243,35 @@ class GameRoomsController extends StateNotifier<List<GameRoom>> {
         phase: MafiaPhase.night,
         round: 1,
         lastEvent: 'Night 1 — mafia wakes up.',
+        messages: [
+          ...room.messages,
+          GameRoomMessage(
+            id: _uuid.v4(),
+            senderId: 'system',
+            senderName: 'System',
+            text: 'Game started. Night falls — discussion paused.',
+            sentAt: DateTime.now(),
+            isSystem: true,
+          ),
+        ],
       ),
     );
     return true;
   }
 
-  /// Demo night: mafia picks a random living citizen-side target.
   void resolveNight(String roomId, {String? killTargetId}) {
     final room = byId(roomId);
     if (room == null || room.phase != MafiaPhase.night) return;
 
     final living = room.players.where((p) => p.isAlive).toList();
-    final civilians = living
-        .where((p) => p.role != MafiaRole.mafia)
-        .toList();
+    final civilians =
+        living.where((p) => p.role != MafiaRole.mafia).toList();
     if (civilians.isEmpty) {
       _end(room, townWins: false);
       return;
     }
 
-    String targetId = killTargetId ?? '';
+    var targetId = killTargetId ?? '';
     if (targetId.isEmpty ||
         !civilians.any((p) => p.user.id == targetId)) {
       targetId = civilians[_random.nextInt(civilians.length)].user.id;
@@ -165,11 +283,23 @@ class GameRoomsController extends StateNotifier<List<GameRoom>> {
     }).toList();
 
     final victim = nextPlayers.firstWhere((p) => p.user.id == targetId);
+    final event =
+        '${victim.shortName} was eliminated at night. Discuss and vote.';
     final updated = room.copyWith(
       players: nextPlayers,
       phase: MafiaPhase.day,
-      lastEvent:
-          '${victim.user.displayName.split(' ').first} was eliminated at night.',
+      lastEvent: event,
+      messages: [
+        ...room.messages,
+        GameRoomMessage(
+          id: _uuid.v4(),
+          senderId: 'system',
+          senderName: 'System',
+          text: '☀️ Day ${room.round}: $event',
+          sentAt: DateTime.now(),
+          isSystem: true,
+        ),
+      ],
     );
 
     if (_checkWin(updated)) return;
@@ -191,24 +321,31 @@ class GameRoomsController extends StateNotifier<List<GameRoom>> {
       return p;
     }).toList();
 
-    final accused =
-        nextPlayers.firstWhere((p) => p.user.id == accusedId);
+    final accused = nextPlayers.firstWhere((p) => p.user.id == accusedId);
+    final roleBit =
+        accused.role != null ? ' (${accused.role!.label})' : '';
+    final event = 'Town voted out ${accused.shortName}$roleBit.';
+    final nextRound = room.round + 1;
     final updated = room.copyWith(
       players: nextPlayers,
       phase: MafiaPhase.night,
-      round: room.round + 1,
-      lastEvent:
-          'Town voted out ${accused.user.displayName.split(' ').first}'
-          '${accused.role != null ? ' (${accused.role!.label})' : ''}.',
+      round: nextRound,
+      lastEvent: '$event Night $nextRound begins.',
+      messages: [
+        ...room.messages,
+        GameRoomMessage(
+          id: _uuid.v4(),
+          senderId: 'system',
+          senderName: 'System',
+          text: '🗳️ $event Night falls again.',
+          sentAt: DateTime.now(),
+          isSystem: true,
+        ),
+      ],
     );
 
     if (_checkWin(updated)) return;
-    _replace(
-      updated.copyWith(
-        lastEvent:
-            '${updated.lastEvent} Night ${updated.round} begins.',
-      ),
-    );
+    _replace(updated);
   }
 
   List<GameRoomPlayer> _assignMafiaRoles(List<GameRoomPlayer> players) {
@@ -251,11 +388,23 @@ class GameRoomsController extends StateNotifier<List<GameRoom>> {
   }
 
   void _end(GameRoom room, {required bool townWins}) {
+    final text = townWins ? 'Town wins!' : 'Mafia wins!';
     _replace(
       room.copyWith(
         status: GameRoomStatus.ended,
         phase: MafiaPhase.ended,
-        lastEvent: townWins ? 'Town wins!' : 'Mafia wins!',
+        lastEvent: text,
+        messages: [
+          ...room.messages,
+          GameRoomMessage(
+            id: _uuid.v4(),
+            senderId: 'system',
+            senderName: 'System',
+            text: '🏁 $text',
+            sentAt: DateTime.now(),
+            isSystem: true,
+          ),
+        ],
       ),
     );
   }
@@ -268,5 +417,4 @@ class GameRoomsController extends StateNotifier<List<GameRoom>> {
   }
 }
 
-/// Current user profile helper for game UIs.
 UserProfile get mePlayer => MockData.currentUser;
