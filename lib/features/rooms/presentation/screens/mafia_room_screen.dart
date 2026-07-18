@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -102,10 +104,20 @@ class MafiaRoomScreen extends ConsumerStatefulWidget {
 class _MafiaRoomScreenState extends ConsumerState<MafiaRoomScreen> {
   final _chatCtrl = TextEditingController();
   final _chatScroll = ScrollController();
-  bool _showVotePanel = false;
+  Timer? _tick;
+
+  @override
+  void initState() {
+    super.initState();
+    // Refresh countdown UI every second while phases auto-advance.
+    _tick = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
 
   @override
   void dispose() {
+    _tick?.cancel();
     _chatCtrl.dispose();
     _chatScroll.dispose();
     super.dispose();
@@ -138,7 +150,6 @@ class _MafiaRoomScreenState extends ConsumerState<MafiaRoomScreen> {
       );
     }
 
-    // Non-nullable copy so closures (onSend, etc.) can safely use fields.
     final GameRoom active = room;
 
     ref.listen(gameRoomsProvider, (prev, next) {
@@ -148,9 +159,8 @@ class _MafiaRoomScreenState extends ConsumerState<MafiaRoomScreen> {
     final me = _findMe(active);
     final isHost = active.host.id == 'me';
     final isNight = active.phase == MafiaPhase.night;
-    final isDay =
-        active.phase == MafiaPhase.day || active.phase == MafiaPhase.voting;
-    final theme = _MafiaTheme.forPhase(active.phase, context.isDark);
+    final isVoting = active.phase == MafiaPhase.voting;
+    final theme = _MafiaTheme.of(context.isDark);
 
     return Scaffold(
       backgroundColor: theme.bg,
@@ -174,7 +184,7 @@ class _MafiaRoomScreenState extends ConsumerState<MafiaRoomScreen> {
             Text(
               _phaseLabel(s, active),
               style: TextStyle(
-                color: theme.accent,
+                color: AppColors.primary,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
@@ -210,63 +220,38 @@ class _MafiaRoomScreenState extends ConsumerState<MafiaRoomScreen> {
               s: s,
               isHost: isHost,
               onStart: () {
-                final ok =
-                    ref.read(gameRoomsProvider.notifier).startMafia(widget.roomId);
+                final ok = ref
+                    .read(gameRoomsProvider.notifier)
+                    .startMafia(widget.roomId);
                 if (!ok) {
                   context.showSnack(s.needPlayersHint, isError: true);
                 }
               },
             ),
           if (active.status == GameRoomStatus.playing && isNight)
-            _NightActions(
+            _NightPickPanel(
               room: active,
               theme: theme,
               s: s,
               me: me,
-              onKill: (id) {
+              onSelect: (id) {
                 ref
                     .read(gameRoomsProvider.notifier)
-                    .resolveNight(widget.roomId, killTargetId: id);
-              },
-              onSkip: () {
-                ref.read(gameRoomsProvider.notifier).resolveNight(widget.roomId);
+                    .selectNightTarget(widget.roomId, id);
               },
             ),
-          if (active.status == GameRoomStatus.playing && isDay) ...[
-            if (_showVotePanel)
-              _VotePanel(
-                room: active,
-                theme: theme,
-                s: s,
-                me: me,
-                onVote: (id) {
-                  ref
-                      .read(gameRoomsProvider.notifier)
-                      .castVote(widget.roomId, id);
-                  setState(() => _showVotePanel = false);
-                },
-                onClose: () => setState(() => _showVotePanel = false),
-              )
-            else
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    onPressed: (me?.isAlive ?? false)
-                        ? () => setState(() => _showVotePanel = true)
-                        : null,
-                    icon: const Icon(Icons.how_to_vote_rounded),
-                    label: Text(s.vote),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: theme.accent,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                  ),
-                ),
-              ),
-          ],
+          if (active.status == GameRoomStatus.playing && isVoting)
+            _VotePanel(
+              room: active,
+              theme: theme,
+              s: s,
+              me: me,
+              onVote: (id) {
+                ref
+                    .read(gameRoomsProvider.notifier)
+                    .castVote(widget.roomId, id);
+              },
+            ),
           if (active.status == GameRoomStatus.ended)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -309,20 +294,24 @@ class _MafiaRoomScreenState extends ConsumerState<MafiaRoomScreen> {
   }
 
   String _phaseLabel(AppStrings s, GameRoom room) {
+    final sec = room.secondsLeft;
+    final timer = room.phaseEndsAt != null && sec > 0 ? ' · ${sec}s' : '';
     switch (room.phase) {
       case MafiaPhase.lobby:
         return s.lobby;
       case MafiaPhase.night:
-        return '${s.nightPhase} · ${room.round}';
+        return '${s.nightPhase}$timer';
       case MafiaPhase.day:
+        return '${s.dayDiscuss}$timer';
       case MafiaPhase.voting:
-        return '${s.dayVote} · ${room.round}';
+        return '${s.dayVote}$timer';
       case MafiaPhase.ended:
         return s.ended;
     }
   }
 }
 
+/// Stable brand theme — does NOT flip to dark for night.
 class _MafiaTheme {
   const _MafiaTheme({
     required this.bg,
@@ -342,30 +331,7 @@ class _MafiaTheme {
   final Color bubbleMine;
   final Color bubbleOther;
 
-  static _MafiaTheme forPhase(MafiaPhase phase, bool isDark) {
-    if (phase == MafiaPhase.night) {
-      return const _MafiaTheme(
-        bg: Color(0xFF0F0C1D),
-        card: Color(0xFF1A1530),
-        fg: Color(0xFFF3EEFF),
-        muted: Color(0xFF9B93B0),
-        accent: Color(0xFF8B5CF6),
-        bubbleMine: Color(0xFF5B21B6),
-        bubbleOther: Color(0xFF241B3E),
-      );
-    }
-    if (phase == MafiaPhase.day || phase == MafiaPhase.voting) {
-      return _MafiaTheme(
-        bg: isDark ? const Color(0xFF1A1428) : const Color(0xFFFFF8F0),
-        card: isDark ? const Color(0xFF241C38) : Colors.white,
-        fg: isDark ? const Color(0xFFF5F3FF) : const Color(0xFF1E1333),
-        muted: isDark ? const Color(0xFFA89BC4) : AppColors.textSecondary,
-        accent: const Color(0xFFEAB308),
-        bubbleMine: const Color(0xFF7C3AED),
-        bubbleOther:
-            isDark ? const Color(0xFF2A2140) : const Color(0xFFF3E8FF),
-      );
-    }
+  static _MafiaTheme of(bool isDark) {
     return _MafiaTheme(
       bg: isDark ? AppColors.backgroundDark : AppColors.background,
       card: isDark ? AppColors.surfaceElevatedDark : AppColors.surfaceElevated,
@@ -394,6 +360,10 @@ class _PhaseHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sec = room.secondsLeft;
+    final showTimer =
+        room.status == GameRoomStatus.playing && room.phaseEndsAt != null;
+
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -401,33 +371,68 @@ class _PhaseHeader extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.accent.withOpacity(0.35)),
+        border: Border.all(color: AppColors.primary.withOpacity(0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (me?.role != null && room.status == GameRoomStatus.playing)
-            Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: theme.accent.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                '${s.yourRole}: ${me!.role!.label}',
-                style: TextStyle(
-                  color: theme.accent,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 13,
+          Row(
+            children: [
+              if (me?.role != null && room.status == GameRoomStatus.playing)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.primarySurface,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '${s.yourRole}: ${me!.role!.label}',
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
+                  ),
                 ),
+              const Spacer(),
+              if (showTimer)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.secondary.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '${s.autoIn} ${sec}s',
+                    style: const TextStyle(
+                      color: AppColors.secondary,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          if (room.phaseHint.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Text(
+              room.phaseHint,
+              style: TextStyle(
+                color: theme.fg,
+                height: 1.35,
+                fontWeight: FontWeight.w600,
               ),
             ),
-          if (room.lastEvent.isNotEmpty)
+          ],
+          if (room.lastEvent.isNotEmpty) ...[
+            const SizedBox(height: 6),
             Text(
               room.lastEvent,
-              style: TextStyle(color: theme.fg, height: 1.35),
+              style: TextStyle(color: theme.muted, height: 1.3, fontSize: 13),
             ),
+          ],
         ],
       ),
     );
@@ -718,22 +723,21 @@ class _LobbyActions extends StatelessWidget {
   }
 }
 
-class _NightActions extends StatelessWidget {
-  const _NightActions({
+/// Mafia can lock a target; night still ends on the timer.
+class _NightPickPanel extends StatelessWidget {
+  const _NightPickPanel({
     required this.room,
     required this.theme,
     required this.s,
     required this.me,
-    required this.onKill,
-    required this.onSkip,
+    required this.onSelect,
   });
 
   final GameRoom room;
   final _MafiaTheme theme;
   final AppStrings s;
   final GameRoomPlayer? me;
-  final void Function(String id) onKill;
-  final VoidCallback onSkip;
+  final void Function(String id) onSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -757,69 +761,62 @@ class _NightActions extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            s.nightPhase,
+            isMafia ? s.pickTargetHint : s.waitNightHint,
             style: TextStyle(
               color: theme.fg,
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: 8),
-          if (isMafia)
+          if (isMafia) ...[
+            const SizedBox(height: 8),
             ...targets.map(
-              (p) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  children: [
-                    AppAvatar(
-                      name: p.user.displayName,
-                      url: p.user.avatarUrl,
-                      size: 36,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        p.shortName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: theme.fg,
-                          fontWeight: FontWeight.w600,
+              (p) {
+                final selected = room.pendingNightTargetId == p.user.id;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      AppAvatar(
+                        name: p.user.displayName,
+                        url: p.user.avatarUrl,
+                        size: 36,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          p.shortName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: theme.fg,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    FilledButton(
-                      onPressed: () => onKill(p.user.id),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppColors.error,
-                        visualDensity: VisualDensity.compact,
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                      const SizedBox(width: 8),
+                      FilledButton(
+                        onPressed: () => onSelect(p.user.id),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: selected
+                              ? AppColors.success
+                              : AppColors.primary,
+                          visualDensity: VisualDensity.compact,
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                        ),
+                        child: Text(selected ? s.locked : s.pickTarget),
                       ),
-                      child: Text(s.eliminate),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          else
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: onSkip,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: theme.fg,
-                  side: BorderSide(color: theme.accent.withOpacity(0.5)),
-                ),
-                child: Text(s.skipNight),
-              ),
+                    ],
+                  ),
+                );
+              },
             ),
+          ],
         ],
       ),
     );
   }
 }
 
-/// Vote list with fixed layout so names never overflow/break.
 class _VotePanel extends StatelessWidget {
   const _VotePanel({
     required this.room,
@@ -827,7 +824,6 @@ class _VotePanel extends StatelessWidget {
     required this.s,
     required this.me,
     required this.onVote,
-    required this.onClose,
   });
 
   final GameRoom room;
@@ -835,7 +831,6 @@ class _VotePanel extends StatelessWidget {
   final AppStrings s;
   final GameRoomPlayer? me;
   final void Function(String id) onVote;
-  final VoidCallback onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -851,29 +846,19 @@ class _VotePanel extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.accent.withOpacity(0.4)),
+        border: Border.all(color: AppColors.primary.withOpacity(0.35)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  s.dayVote,
-                  style: TextStyle(
-                    color: theme.fg,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              IconButton(
-                onPressed: onClose,
-                icon: Icon(Icons.close, color: theme.muted),
-                visualDensity: VisualDensity.compact,
-              ),
-            ],
+          Text(
+            '${s.dayVote} · ${room.secondsLeft}s',
+            style: TextStyle(
+              color: theme.fg,
+              fontWeight: FontWeight.w700,
+            ),
           ),
+          const SizedBox(height: 8),
           if (!(me?.isAlive ?? false))
             Text(s.youAreOut, style: TextStyle(color: theme.muted))
           else

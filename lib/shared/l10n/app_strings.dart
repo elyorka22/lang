@@ -122,6 +122,12 @@ class AppStrings {
     'discussHint': 'Discuss here — convince the town',
     'nightSilence': 'Night silence — chat opens at dawn',
     'send': 'Send',
+    'dayDiscuss': 'Day · discuss',
+    'autoIn': 'Auto in',
+    'pickTargetHint': 'Optional: pick a target before night ends',
+    'waitNightHint': 'Night is automatic — wait for dawn tips',
+    'pickTarget': 'Pick',
+    'locked': 'Locked',
   };
 
   static const _ru = <String, String>{
@@ -239,6 +245,12 @@ class AppStrings {
     'discussHint': 'Обсуждайте здесь — убедите город',
     'nightSilence': 'Ночная тишина — чат откроется днём',
     'send': 'Отправить',
+    'dayDiscuss': 'День · обсуждение',
+    'autoIn': 'Авто через',
+    'pickTargetHint': 'Можно выбрать цель до конца ночи',
+    'waitNightHint': 'Ночь идёт сама — ждите подсказки рассвета',
+    'pickTarget': 'Выбрать',
+    'locked': 'Выбрано',
   };
 
   static const _uz = <String, String>{
@@ -356,6 +368,12 @@ class AppStrings {
     'discussHint': 'Bu yerda muhokama qiling',
     'nightSilence': 'Tun jimligi — suhbat kunduzi ochiladi',
     'send': 'Yuborish',
+    'dayDiscuss': 'Kun · muhokama',
+    'autoIn': 'Avto',
+    'pickTargetHint': 'Tun tugashidan oldin nishon tanlash mumkin',
+    'waitNightHint': 'Tun avtomatik — tong maslahatini kuting',
+    'pickTarget': 'Tanlash',
+    'locked': 'Tanlandi',
   };
 
   Map<String, String> get _table {
@@ -486,6 +504,12 @@ class AppStrings {
   String get discussHint => t('discussHint');
   String get nightSilence => t('nightSilence');
   String get send => t('send');
+  String get dayDiscuss => t('dayDiscuss');
+  String get autoIn => t('autoIn');
+  String get pickTargetHint => t('pickTargetHint');
+  String get waitNightHint => t('waitNightHint');
+  String get pickTarget => t('pickTarget');
+  String get locked => t('locked');
 
   String hello(String name) => t('hello', {'name': name});
   String dayStreak(int n) => t('dayStreak', {'n': '$n'});

@@ -137,6 +137,9 @@ class GameRoom extends Equatable {
     this.round = 0,
     this.lastEvent = '',
     this.messages = const [],
+    this.phaseHint = '',
+    this.phaseEndsAt,
+    this.pendingNightTargetId,
   });
 
   final String id;
@@ -152,6 +155,15 @@ class GameRoom extends Equatable {
   final String lastEvent;
   final List<GameRoomMessage> messages;
 
+  /// Tip shown under the phase banner (auto cycle).
+  final String phaseHint;
+
+  /// When the current automatic phase ends.
+  final DateTime? phaseEndsAt;
+
+  /// Optional mafia pick before night auto-resolves.
+  final String? pendingNightTargetId;
+
   int get seatsLeft => kind.maxPlayers - players.length;
   bool get isJoinable =>
       status == GameRoomStatus.open && seatsLeft > 0;
@@ -166,6 +178,13 @@ class GameRoom extends Equatable {
       phase == MafiaPhase.voting ||
       phase == MafiaPhase.ended;
 
+  int get secondsLeft {
+    final ends = phaseEndsAt;
+    if (ends == null) return 0;
+    final left = ends.difference(DateTime.now()).inSeconds;
+    return left < 0 ? 0 : left;
+  }
+
   GameRoom copyWith({
     List<GameRoomPlayer>? players,
     GameRoomStatus? status,
@@ -173,6 +192,11 @@ class GameRoom extends Equatable {
     int? round,
     String? lastEvent,
     List<GameRoomMessage>? messages,
+    String? phaseHint,
+    DateTime? phaseEndsAt,
+    String? pendingNightTargetId,
+    bool clearPendingTarget = false,
+    bool clearPhaseEndsAt = false,
   }) {
     return GameRoom(
       id: id,
@@ -187,10 +211,25 @@ class GameRoom extends Equatable {
       round: round ?? this.round,
       lastEvent: lastEvent ?? this.lastEvent,
       messages: messages ?? this.messages,
+      phaseHint: phaseHint ?? this.phaseHint,
+      phaseEndsAt: clearPhaseEndsAt ? null : (phaseEndsAt ?? this.phaseEndsAt),
+      pendingNightTargetId: clearPendingTarget
+          ? null
+          : (pendingNightTargetId ?? this.pendingNightTargetId),
     );
   }
 
   @override
-  List<Object?> get props =>
-      [id, status, phase, round, players.length, lastEvent, messages.length];
+  List<Object?> get props => [
+        id,
+        status,
+        phase,
+        round,
+        players.length,
+        lastEvent,
+        messages.length,
+        phaseHint,
+        phaseEndsAt,
+        pendingNightTargetId,
+      ];
 }
