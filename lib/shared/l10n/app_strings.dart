@@ -184,6 +184,15 @@ class AppStrings {
     'waitNightHint': 'Night is automatic — wait for dawn tips',
     'pickTarget': 'Pick',
     'locked': 'Locked',
+    'changePhoto': 'Change photo',
+    'chooseFromGallery': 'Choose from gallery',
+    'takePhoto': 'Take a photo',
+    'removePhoto': 'Remove photo',
+    'displayName': 'Display name',
+    'bio': 'Bio',
+    'save': 'Save',
+    'profileUpdated': 'Profile updated',
+    'profileUpdateFailed': 'Could not update profile',
   };
 
   static const _ru = <String, String>{
@@ -363,6 +372,15 @@ class AppStrings {
     'waitNightHint': 'Ночь идёт сама — ждите подсказки рассвета',
     'pickTarget': 'Выбрать',
     'locked': 'Выбрано',
+    'changePhoto': 'Сменить фото',
+    'chooseFromGallery': 'Выбрать из галереи',
+    'takePhoto': 'Сделать фото',
+    'removePhoto': 'Удалить фото',
+    'displayName': 'Имя',
+    'bio': 'О себе',
+    'save': 'Сохранить',
+    'profileUpdated': 'Профиль обновлён',
+    'profileUpdateFailed': 'Не удалось обновить профиль',
   };
 
   static const _uz = <String, String>{
@@ -542,6 +560,15 @@ class AppStrings {
     'waitNightHint': 'Tun avtomatik — tong maslahatini kuting',
     'pickTarget': 'Tanlash',
     'locked': 'Tanlandi',
+    'changePhoto': 'Fotoni almashtirish',
+    'chooseFromGallery': 'Galereyadan tanlash',
+    'takePhoto': 'Rasmga olish',
+    'removePhoto': 'Fotoni olib tashlash',
+    'displayName': 'Ism',
+    'bio': 'Bio',
+    'save': 'Saqlash',
+    'profileUpdated': 'Profil yangilandi',
+    'profileUpdateFailed': 'Profilni yangilab bo‘lmadi',
   };
 
   Map<String, String> get _table {
@@ -734,6 +761,15 @@ class AppStrings {
   String get waitNightHint => t('waitNightHint');
   String get pickTarget => t('pickTarget');
   String get locked => t('locked');
+  String get changePhoto => t('changePhoto');
+  String get chooseFromGallery => t('chooseFromGallery');
+  String get takePhoto => t('takePhoto');
+  String get removePhoto => t('removePhoto');
+  String get displayName => t('displayName');
+  String get bio => t('bio');
+  String get save => t('save');
+  String get profileUpdated => t('profileUpdated');
+  String get profileUpdateFailed => t('profileUpdateFailed');
 
   String hello(String name) => t('hello', {'name': name});
   String dayStreak(int n) => t('dayStreak', {'n': '$n'});
