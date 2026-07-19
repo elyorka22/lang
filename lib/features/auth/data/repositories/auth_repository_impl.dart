@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'dart:convert';
 
 import '../../../../core/config/env_config.dart';
 import '../../../../core/error/failures.dart';
@@ -36,7 +37,7 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       await _secure.saveUserId(MockData.currentUser.id);
       await _local.setGuest(false);
-      return Result.success(MockData.currentUser);
+      return Result.success(_applyLocalOverrides(MockData.currentUser));
     }
 
     try {
@@ -69,7 +70,7 @@ class AuthRepositoryImpl implements AuthRepository {
         refreshToken: 'mock_refresh',
       );
       await _secure.saveUserId(user.id);
-      return Result.success(user);
+      return Result.success(_applyLocalOverrides(user));
     }
 
     try {
@@ -104,7 +105,7 @@ class AuthRepositoryImpl implements AuthRepository {
         refreshToken: 'mock_refresh',
       );
       await _secure.saveUserId(MockData.currentUser.id);
-      return Result.success(MockData.currentUser);
+      return Result.success(_applyLocalOverrides(MockData.currentUser));
     }
     return Result.failure(
       Failure.auth('Configure Google Sign-In client IDs'),
@@ -120,7 +121,7 @@ class AuthRepositoryImpl implements AuthRepository {
         refreshToken: 'mock_refresh',
       );
       await _secure.saveUserId(MockData.currentUser.id);
-      return Result.success(MockData.currentUser);
+      return Result.success(_applyLocalOverrides(MockData.currentUser));
     }
     return Result.failure(
       Failure.auth('Configure Apple Sign-In capability'),
@@ -136,7 +137,9 @@ class AuthRepositoryImpl implements AuthRepository {
     );
     await _secure.saveUserId('guest');
     return Result.success(
-      MockData.currentUser.copyWith(displayName: 'Guest'),
+      _applyLocalOverrides(
+        MockData.currentUser.copyWith(displayName: 'Guest'),
+      ),
     );
   }
 
@@ -168,20 +171,69 @@ class AuthRepositoryImpl implements AuthRepository {
     final token = await _secure.getAccessToken();
     if (token == null) return Result.success(null);
     if (EnvConfig.useMockData) {
-      return Result.success(MockData.currentUser);
+      return Result.success(_applyLocalOverrides(MockData.currentUser));
     }
     try {
       final res = await _dio.get<Map<String, dynamic>>(ApiEndpoints.me);
-      return Result.success(UserProfile.fromJson(res.data!));
+      final remote = UserProfile.fromJson(res.data!);
+      return Result.success(_applyLocalOverrides(remote));
     } on DioException {
       return Result.success(null);
     }
   }
 
   @override
+  Future<Result<UserProfile>> updateProfile({
+    String? displayName,
+    String? bio,
+    String? avatarUrl,
+    bool clearAvatar = false,
+  }) async {
+    final current = (await getCurrentUser()).when(
+      success: (u) => u,
+      failure: (_) => null,
+    );
+    final base = current ?? MockData.currentUser;
+    final next = base.copyWith(
+      displayName: displayName,
+      bio: bio,
+      avatarUrl: avatarUrl,
+      clearAvatarUrl: clearAvatar,
+    );
+    await _saveLocalOverrides(next);
+    return Result.success(next);
+  }
+
+  @override
   Future<bool> isAuthenticated() async {
     final token = await _secure.getAccessToken();
     return token != null && token.isNotEmpty;
+  }
+
+  UserProfile _applyLocalOverrides(UserProfile base) {
+    final raw = _local.profileOverridesJson;
+    if (raw == null || raw.isEmpty) return base;
+    try {
+      final map = jsonDecode(raw) as Map<String, dynamic>;
+      return base.copyWith(
+        displayName: map['displayName'] as String?,
+        bio: map['bio'] as String?,
+        avatarUrl: map['avatarUrl'] as String?,
+        clearAvatarUrl: map['avatarUrl'] == null && map.containsKey('avatarUrl'),
+      );
+    } catch (_) {
+      return base;
+    }
+  }
+
+  Future<void> _saveLocalOverrides(UserProfile user) async {
+    await _local.setProfileOverridesJson(
+      jsonEncode({
+        'displayName': user.displayName,
+        'bio': user.bio,
+        'avatarUrl': user.avatarUrl,
+      }),
+    );
   }
 
   Future<void> _persistSession(Map<String, dynamic> data) async {

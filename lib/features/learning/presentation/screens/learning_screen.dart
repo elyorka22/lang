@@ -130,10 +130,9 @@ class PremiumScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: AppColors.brandGradient,
-              ),
-              borderRadius: BorderRadius.circular(20),
+              color: AppColors.primary,
+              borderRadius: AppRadius.borderXl,
+              boxShadow: AppShadows.primaryGlow,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

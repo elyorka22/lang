@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions.dart';
+import '../../../../shared/providers/locale_provider.dart';
+import '../../../../shared/widgets/premium_card.dart';
 import '../../application/ai_controller.dart';
 
 class AiScreen extends ConsumerStatefulWidget {
@@ -17,13 +20,6 @@ class _AiScreenState extends ConsumerState<AiScreen> {
   final _input = TextEditingController();
   final _scroll = ScrollController();
 
-  static const _modes = [
-    ('tutor', 'Tutor', Icons.school_outlined),
-    ('grammar', 'Grammar', Icons.spellcheck),
-    ('roleplay', 'Roleplay', Icons.theater_comedy_outlined),
-    ('ielts', 'IELTS', Icons.workspace_premium_outlined),
-  ];
-
   @override
   void dispose() {
     _input.dispose();
@@ -34,14 +30,31 @@ class _AiScreenState extends ConsumerState<AiScreen> {
   @override
   Widget build(BuildContext context) {
     final ai = ref.watch(aiControllerProvider);
+    final s = ref.watch(appStringsProvider);
+
+    final modes = [
+      ('tutor', s.tutor, Icons.school_outlined),
+      ('grammar', s.grammar, Icons.spellcheck_rounded),
+      ('roleplay', s.roleplay, Icons.theater_comedy_outlined),
+      ('ielts', s.ielts, Icons.workspace_premium_outlined),
+    ];
+
+    final quick = [
+      (s.translation, Icons.translate_rounded, 'tutor'),
+      (s.pronunciation, Icons.record_voice_over_outlined, 'tutor'),
+      (s.grammar, Icons.spellcheck_rounded, 'grammar'),
+      (s.roleplay, Icons.theater_comedy_outlined, 'roleplay'),
+      (s.navVocab, Icons.menu_book_outlined, 'tutor'),
+      (s.dailyLesson, Icons.auto_stories_outlined, 'tutor'),
+    ];
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('AI Tutor'),
+        title: Text(s.aiTutor),
         actions: [
           TextButton(
             onPressed: () => context.push('/premium'),
-            child: Text('${ai.remainingFree} left'),
+            child: Text(s.remainingFree(ai.remainingFree)),
           ),
           IconButton(
             onPressed: () => context.push('/ai/voice'),
@@ -52,11 +65,11 @@ class _AiScreenState extends ConsumerState<AiScreen> {
       body: Column(
         children: [
           SizedBox(
-            height: 48,
+            height: 44,
             child: ListView(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              children: _modes.map((m) {
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              children: modes.map((m) {
                 final selected = ai.mode == m.$1;
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
@@ -72,18 +85,47 @@ class _AiScreenState extends ConsumerState<AiScreen> {
               }).toList(),
             ),
           ),
+          if (ai.messages.isEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: quick.map((q) {
+                  return ActionChip(
+                    avatar: Icon(q.$2, size: 16, color: AppColors.primary),
+                    label: Text(q.$1),
+                    onPressed: () {
+                      ref.read(aiControllerProvider.notifier).setMode(q.$3);
+                      _input.text = q.$1;
+                    },
+                    backgroundColor: context.isDark
+                        ? AppColors.surfaceElevatedDark
+                        : AppColors.secondary,
+                  );
+                }).toList(),
+              ),
+            ),
           Expanded(
             child: ListView.builder(
               controller: _scroll,
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               itemCount: ai.messages.length + (ai.isStreaming ? 1 : 0),
               itemBuilder: (_, i) {
                 if (ai.isStreaming && i == ai.messages.length) {
-                  return const Align(
+                  return Align(
                     alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: EdgeInsets.all(8),
-                      child: Text('Thinking…'),
+                    child: PremiumCard(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      child: Text(
+                        s.thinking,
+                        style: context.textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
                     ),
                   );
                 }
@@ -94,7 +136,10 @@ class _AiScreenState extends ConsumerState<AiScreen> {
                       mine ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 10),
-                    padding: const EdgeInsets.all(14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     constraints: BoxConstraints(
                       maxWidth: MediaQuery.of(context).size.width * 0.82,
                     ),
@@ -103,14 +148,24 @@ class _AiScreenState extends ConsumerState<AiScreen> {
                           ? AppColors.primary
                           : (context.isDark
                               ? AppColors.surfaceElevatedDark
-                              : AppColors.surface),
-                      borderRadius: BorderRadius.circular(18),
+                              : AppColors.secondary),
+                      borderRadius: BorderRadius.only(
+                        topLeft: const Radius.circular(20),
+                        topRight: const Radius.circular(20),
+                        bottomLeft: Radius.circular(mine ? 20 : 6),
+                        bottomRight: Radius.circular(mine ? 6 : 20),
+                      ),
+                      boxShadow: mine ? null : AppShadows.soft,
                     ),
                     child: Text(
                       m.content,
                       style: TextStyle(
-                        color: mine ? Colors.white : null,
-                        height: 1.4,
+                        color: mine
+                            ? Colors.white
+                            : (context.isDark
+                                ? AppColors.textPrimaryDark
+                                : AppColors.textPrimary),
+                        height: 1.45,
                       ),
                     ),
                   ),
@@ -129,8 +184,8 @@ class _AiScreenState extends ConsumerState<AiScreen> {
                       controller: _input,
                       minLines: 1,
                       maxLines: 4,
-                      decoration: const InputDecoration(
-                        hintText: 'Ask anything about languages…',
+                      decoration: InputDecoration(
+                        hintText: s.askAnything,
                       ),
                     ),
                   ),

@@ -10,8 +10,64 @@ class AppStrings {
   static const _en = <String, String>{
     'navHome': 'Home',
     'navChats': 'Chats',
+    'navAi': 'AI',
+    'navVocab': 'Vocabulary',
     'navRooms': 'Rooms',
     'navProfile': 'Profile',
+    'startPracticing': 'START PRACTICING NOW',
+    'findPartner': 'Find Partner',
+    'joinVoiceRoom': 'Join Voice Room',
+    'practiceWithAi': 'Practice with AI',
+    'peopleOnline': 'People Online',
+    'recommendedPartners': 'Recommended Partners',
+    'vocabularyReview': 'Vocabulary Review',
+    'trendingVoiceRooms': 'Trending Voice Rooms',
+    'popularGames': 'Popular Games',
+    'wordsDue': '{n} words due',
+    'onlineCount': '{n} online',
+    'follow': 'Follow',
+    'message': 'Message',
+    'friends': 'Friends',
+    'voiceHours': 'Voice hours',
+    'wordsLearned': 'Words learned',
+    'achievements': 'Achievements',
+    'learningStats': 'Learning stats',
+    'easy': 'Easy',
+    'medium': 'Medium',
+    'hard': 'Hard',
+    'review': 'Review',
+    'dailyLesson': 'Daily lesson',
+    'translation': 'Translation',
+    'pronunciation': 'Pronunciation',
+    'grammar': 'Grammar',
+    'roleplay': 'Roleplay',
+    'aiTutor': 'AI Tutor',
+    'noWordsYet': 'No words yet',
+    'noWordsHint': 'Save words from chats or AI lessons',
+    'thinking': 'Thinking…',
+    'askAnything': 'Ask anything about languages…',
+    'nativeLang': 'Native',
+    'learningLang': 'Learning',
+    'addFriend': 'Add friend',
+    'socialMentors': 'Social & mentors',
+    'voiceMessage': 'Voice message',
+    'emptyChatsHint': 'Find a partner or create a group to start talking',
+    'mentor': 'Mentor',
+    'live': 'Live',
+    'playersCount': '{n} players',
+    'remainingFree': '{n} left',
+    'tutor': 'Tutor',
+    'ielts': 'IELTS',
+    'vocabStats': 'Your progress',
+    'totalWords': 'Total',
+    'favorites': 'Favorites',
+    'mastered': 'Mastered',
+    'profileStreak': 'Streak',
+    'profileXp': 'XP',
+    'profileLevel': 'Level',
+    'languages': 'Languages',
+    'interests': 'Interests',
+    'badges': 'Badges',
     'settings': 'Settings',
     'preferences': 'Preferences',
     'theme': 'Theme',
@@ -133,8 +189,64 @@ class AppStrings {
   static const _ru = <String, String>{
     'navHome': 'Главная',
     'navChats': 'Чаты',
+    'navAi': 'ИИ',
+    'navVocab': 'Словарь',
     'navRooms': 'Комнаты',
     'navProfile': 'Профиль',
+    'startPracticing': 'НАЧАТЬ ПРАКТИКУ',
+    'findPartner': 'Найти партнёра',
+    'joinVoiceRoom': 'Голосовая комната',
+    'practiceWithAi': 'Практика с ИИ',
+    'peopleOnline': 'Сейчас онлайн',
+    'recommendedPartners': 'Рекомендуемые партнёры',
+    'vocabularyReview': 'Повторение слов',
+    'trendingVoiceRooms': 'Популярные комнаты',
+    'popularGames': 'Популярные игры',
+    'wordsDue': '{n} слов к повторению',
+    'onlineCount': '{n} онлайн',
+    'follow': 'Подписаться',
+    'message': 'Написать',
+    'friends': 'Друзья',
+    'voiceHours': 'Часы голоса',
+    'wordsLearned': 'Выучено слов',
+    'achievements': 'Достижения',
+    'learningStats': 'Статистика',
+    'easy': 'Легко',
+    'medium': 'Средне',
+    'hard': 'Сложно',
+    'review': 'Повторить',
+    'dailyLesson': 'Урок дня',
+    'translation': 'Перевод',
+    'pronunciation': 'Произношение',
+    'grammar': 'Грамматика',
+    'roleplay': 'Ролевая игра',
+    'aiTutor': 'ИИ-репетитор',
+    'noWordsYet': 'Пока нет слов',
+    'noWordsHint': 'Сохраняйте слова из чатов или уроков ИИ',
+    'thinking': 'Думаю…',
+    'askAnything': 'Спросите что угодно о языках…',
+    'nativeLang': 'Родной',
+    'learningLang': 'Изучает',
+    'addFriend': 'Добавить в друзья',
+    'socialMentors': 'Соцсеть и менторы',
+    'voiceMessage': 'Голосовое сообщение',
+    'emptyChatsHint': 'Найдите партнёра или создайте группу',
+    'mentor': 'Ментор',
+    'live': 'В эфире',
+    'playersCount': '{n} игроков',
+    'remainingFree': 'Осталось {n}',
+    'tutor': 'Репетитор',
+    'ielts': 'IELTS',
+    'vocabStats': 'Ваш прогресс',
+    'totalWords': 'Всего',
+    'favorites': 'Избранное',
+    'mastered': 'Выучено',
+    'profileStreak': 'Серия',
+    'profileXp': 'XP',
+    'profileLevel': 'Уровень',
+    'languages': 'Языки',
+    'interests': 'Интересы',
+    'badges': 'Значки',
     'settings': 'Настройки',
     'preferences': 'Параметры',
     'theme': 'Тема',
@@ -256,8 +368,64 @@ class AppStrings {
   static const _uz = <String, String>{
     'navHome': 'Bosh sahifa',
     'navChats': 'Chatlar',
+    'navAi': 'AI',
+    'navVocab': 'Lug‘at',
     'navRooms': 'Xonalar',
     'navProfile': 'Profil',
+    'startPracticing': 'HOZIR MASHQ QILING',
+    'findPartner': 'Hamkor topish',
+    'joinVoiceRoom': 'Ovozli xona',
+    'practiceWithAi': 'AI bilan mashq',
+    'peopleOnline': 'Onlayn odamlar',
+    'recommendedPartners': 'Tavsiya etilgan hamkorlar',
+    'vocabularyReview': 'Lug‘at takrorlash',
+    'trendingVoiceRooms': 'Mashhur ovozli xonalar',
+    'popularGames': 'Mashhur o‘yinlar',
+    'wordsDue': '{n} so‘z takrorlash uchun',
+    'onlineCount': '{n} onlayn',
+    'follow': 'Kuzatish',
+    'message': 'Xabar',
+    'friends': 'Do‘stlar',
+    'voiceHours': 'Ovoz soatlari',
+    'wordsLearned': 'O‘rganilgan so‘zlar',
+    'achievements': 'Yutuqlar',
+    'learningStats': 'Statistika',
+    'easy': 'Oson',
+    'medium': 'O‘rtacha',
+    'hard': 'Qiyin',
+    'review': 'Takrorlash',
+    'dailyLesson': 'Kunlik dars',
+    'translation': 'Tarjima',
+    'pronunciation': 'Talaffuz',
+    'grammar': 'Grammatika',
+    'roleplay': 'Rolli o‘yin',
+    'aiTutor': 'AI o‘qituvchi',
+    'noWordsYet': 'Hali so‘zlar yo‘q',
+    'noWordsHint': 'Chat yoki AI darsidan so‘z saqlang',
+    'thinking': 'O‘ylayapman…',
+    'askAnything': 'Tillar haqida so‘rang…',
+    'nativeLang': 'Ona tili',
+    'learningLang': 'O‘rganadi',
+    'addFriend': 'Do‘st qo‘shish',
+    'socialMentors': 'Ijtimoiy va mentorlar',
+    'voiceMessage': 'Ovozli xabar',
+    'emptyChatsHint': 'Hamkor toping yoki guruh yarating',
+    'mentor': 'Mentor',
+    'live': 'Jonli',
+    'playersCount': '{n} o‘yinchi',
+    'remainingFree': '{n} qoldi',
+    'tutor': 'O‘qituvchi',
+    'ielts': 'IELTS',
+    'vocabStats': 'Sizning progress',
+    'totalWords': 'Jami',
+    'favorites': 'Sevimlilar',
+    'mastered': 'O‘zlashtirilgan',
+    'profileStreak': 'Seriya',
+    'profileXp': 'XP',
+    'profileLevel': 'Daraja',
+    'languages': 'Tillar',
+    'interests': 'Qiziqishlar',
+    'badges': 'Nishonlar',
     'settings': 'Sozlamalar',
     'preferences': 'Parametrlar',
     'theme': 'Mavzu',
@@ -399,8 +567,64 @@ class AppStrings {
 
   String get navHome => t('navHome');
   String get navChats => t('navChats');
+  String get navAi => t('navAi');
+  String get navVocab => t('navVocab');
   String get navRooms => t('navRooms');
   String get navProfile => t('navProfile');
+  String get startPracticing => t('startPracticing');
+  String get findPartner => t('findPartner');
+  String get joinVoiceRoom => t('joinVoiceRoom');
+  String get practiceWithAi => t('practiceWithAi');
+  String get peopleOnline => t('peopleOnline');
+  String get recommendedPartners => t('recommendedPartners');
+  String get vocabularyReview => t('vocabularyReview');
+  String get trendingVoiceRooms => t('trendingVoiceRooms');
+  String get popularGames => t('popularGames');
+  String wordsDue(int n) => t('wordsDue', {'n': '$n'});
+  String onlineCount(int n) => t('onlineCount', {'n': '$n'});
+  String get follow => t('follow');
+  String get message => t('message');
+  String get friends => t('friends');
+  String get voiceHours => t('voiceHours');
+  String get wordsLearned => t('wordsLearned');
+  String get achievements => t('achievements');
+  String get learningStats => t('learningStats');
+  String get easy => t('easy');
+  String get medium => t('medium');
+  String get hard => t('hard');
+  String get review => t('review');
+  String get dailyLesson => t('dailyLesson');
+  String get translation => t('translation');
+  String get pronunciation => t('pronunciation');
+  String get grammar => t('grammar');
+  String get roleplay => t('roleplay');
+  String get aiTutor => t('aiTutor');
+  String get noWordsYet => t('noWordsYet');
+  String get noWordsHint => t('noWordsHint');
+  String get thinking => t('thinking');
+  String get askAnything => t('askAnything');
+  String get nativeLang => t('nativeLang');
+  String get learningLang => t('learningLang');
+  String get addFriend => t('addFriend');
+  String get socialMentors => t('socialMentors');
+  String get voiceMessage => t('voiceMessage');
+  String get emptyChatsHint => t('emptyChatsHint');
+  String get mentor => t('mentor');
+  String get live => t('live');
+  String playersCount(int n) => t('playersCount', {'n': '$n'});
+  String remainingFree(int n) => t('remainingFree', {'n': '$n'});
+  String get tutor => t('tutor');
+  String get ielts => t('ielts');
+  String get vocabStats => t('vocabStats');
+  String get totalWords => t('totalWords');
+  String get favorites => t('favorites');
+  String get mastered => t('mastered');
+  String get profileStreak => t('profileStreak');
+  String get profileXp => t('profileXp');
+  String get profileLevel => t('profileLevel');
+  String get languages => t('languages');
+  String get interests => t('interests');
+  String get badges => t('badges');
   String get settings => t('settings');
   String get preferences => t('preferences');
   String get theme => t('theme');

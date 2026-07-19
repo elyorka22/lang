@@ -15,4 +15,12 @@ abstract class AuthRepository {
   Future<Result<bool>> logout();
   Future<Result<UserProfile?>> getCurrentUser();
   Future<bool> isAuthenticated();
+
+  /// Persist local profile edits (name, bio, avatar path).
+  Future<Result<UserProfile>> updateProfile({
+    String? displayName,
+    String? bio,
+    String? avatarUrl,
+    bool clearAvatar = false,
+  });
 }

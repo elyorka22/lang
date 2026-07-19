@@ -97,6 +97,7 @@ class UserProfile extends Equatable {
     String? displayName,
     String? username,
     String? avatarUrl,
+    bool clearAvatarUrl = false,
     String? country,
     String? countryCode,
     String? nativeLanguage,
@@ -119,7 +120,7 @@ class UserProfile extends Equatable {
       id: id,
       displayName: displayName ?? this.displayName,
       username: username ?? this.username,
-      avatarUrl: avatarUrl ?? this.avatarUrl,
+      avatarUrl: clearAvatarUrl ? null : (avatarUrl ?? this.avatarUrl),
       country: country ?? this.country,
       countryCode: countryCode ?? this.countryCode,
       nativeLanguage: nativeLanguage ?? this.nativeLanguage,
@@ -198,5 +199,6 @@ class UserProfile extends Equatable {
       };
 
   @override
-  List<Object?> get props => [id, username, displayName, xp, streak, status];
+  List<Object?> get props =>
+      [id, username, displayName, avatarUrl, bio, xp, streak, status];
 }

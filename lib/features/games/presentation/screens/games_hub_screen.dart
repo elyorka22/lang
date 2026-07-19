@@ -143,20 +143,29 @@ class _GameTile extends StatelessWidget {
       color: context.isDark
           ? AppColors.surfaceElevatedDark
           : AppColors.surfaceElevated,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: AppRadius.borderXl,
+      elevation: 0,
+      shadowColor: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
+        borderRadius: AppRadius.borderXl,
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: AppRadius.borderXl,
+            border: Border.all(
+              color: context.isDark ? AppColors.borderDark : AppColors.border,
+            ),
+            boxShadow: context.isDark ? null : AppShadows.soft,
+          ),
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
               Container(
-                width: 52,
-                height: 52,
+                width: 56,
+                height: 56,
                 decoration: BoxDecoration(
                   color: iconColor.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: AppRadius.borderLg,
                 ),
                 child: Icon(icon, color: iconColor, size: 28),
               ),
@@ -181,11 +190,19 @@ class _GameTile extends StatelessWidget {
                   ],
                 ),
               ),
-              Text(
-                trailing,
-                style: context.textTheme.labelLarge?.copyWith(
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
                   color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
+                  borderRadius: AppRadius.borderFull,
+                ),
+                child: Text(
+                  trailing,
+                  style: context.textTheme.labelLarge?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],

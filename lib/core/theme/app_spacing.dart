@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'app_colors.dart';
+
 /// 8pt spacing grid used across Lingua.
 class AppSpacing {
   AppSpacing._();
@@ -25,14 +27,14 @@ class AppSpacing {
   );
 }
 
-/// Corner radii — 16–20px as per design system.
+/// Corner radii — premium 18–22px.
 class AppRadius {
   AppRadius._();
 
-  static const double sm = 8;
-  static const double md = 12;
-  static const double lg = 16;
-  static const double xl = 20;
+  static const double sm = 10;
+  static const double md = 14;
+  static const double lg = 18;
+  static const double xl = 22;
   static const double full = 999;
 
   static final BorderRadius borderSm = BorderRadius.circular(sm);
@@ -48,25 +50,25 @@ class AppShadows {
 
   static List<BoxShadow> soft = [
     BoxShadow(
-      color: const Color(0xFF0F172A).withOpacity(0.06),
-      blurRadius: 16,
-      offset: const Offset(0, 4),
+      color: const Color(0xFF111827).withOpacity(0.06),
+      blurRadius: 18,
+      offset: const Offset(0, 6),
     ),
   ];
 
   static List<BoxShadow> medium = [
     BoxShadow(
-      color: const Color(0xFF0F172A).withOpacity(0.1),
-      blurRadius: 24,
-      offset: const Offset(0, 8),
+      color: const Color(0xFF111827).withOpacity(0.1),
+      blurRadius: 28,
+      offset: const Offset(0, 10),
     ),
   ];
 
   static List<BoxShadow> primaryGlow = [
     BoxShadow(
-      color: const Color(0xFF7C3AED).withOpacity(0.28),
-      blurRadius: 20,
-      offset: const Offset(0, 8),
+      color: AppColors.primary.withOpacity(0.28),
+      blurRadius: 22,
+      offset: const Offset(0, 10),
     ),
   ];
 }

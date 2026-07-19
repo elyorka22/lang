@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
@@ -75,12 +77,30 @@ class AppAvatar extends StatelessWidget {
     return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
   }
 
+  static bool isLocalPath(String? path) {
+    if (path == null || path.isEmpty) return false;
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return false;
+    }
+    return path.startsWith('/') ||
+        path.startsWith('file:') ||
+        !path.contains('://');
+  }
+
+  static String normalizeLocalPath(String path) {
+    if (path.startsWith('file://')) {
+      return Uri.parse(path).toFilePath();
+    }
+    return path;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = context.isDark;
     final bg = colorFor(name.isEmpty ? '?' : name);
     final initials = telegramInitials(name, isGroup: isGroup);
     final hasPhoto = url != null && url!.isNotEmpty;
+    final local = hasPhoto && isLocalPath(url);
 
     return SizedBox(
       width: size,
@@ -104,14 +124,24 @@ class AppAvatar extends StatelessWidget {
             ),
             clipBehavior: Clip.antiAlias,
             child: hasPhoto
-                ? CachedNetworkImage(
-                    imageUrl: url!,
-                    width: size,
-                    height: size,
-                    fit: BoxFit.cover,
-                    placeholder: (_, __) => _initialsDisc(bg, initials),
-                    errorWidget: (_, __, ___) => _initialsDisc(bg, initials),
-                  )
+                ? (local
+                    ? Image.file(
+                        File(normalizeLocalPath(url!)),
+                        width: size,
+                        height: size,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) =>
+                            _initialsDisc(bg, initials),
+                      )
+                    : CachedNetworkImage(
+                        imageUrl: url!,
+                        width: size,
+                        height: size,
+                        fit: BoxFit.cover,
+                        placeholder: (_, __) => _initialsDisc(bg, initials),
+                        errorWidget: (_, __, ___) =>
+                            _initialsDisc(bg, initials),
+                      ))
                 : _initialsDisc(bg, initials),
           ),
           if (showStatus && status != null && !isGroup)

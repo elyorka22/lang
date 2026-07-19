@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../shared/models/conversation.dart';
 import '../../../../shared/providers/locale_provider.dart';
@@ -199,17 +200,24 @@ class _GroupTile extends StatelessWidget {
       color: context.isDark
           ? AppColors.surfaceElevatedDark
           : AppColors.surfaceElevated,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: AppRadius.borderXl,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
+        borderRadius: AppRadius.borderXl,
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: AppRadius.borderXl,
+            border: Border.all(
+              color: context.isDark ? AppColors.borderDark : AppColors.border,
+            ),
+            boxShadow: context.isDark ? null : AppShadows.soft,
+          ),
           padding: const EdgeInsets.all(14),
           child: Row(
             children: [
               Container(
-                width: 52,
-                height: 52,
+                width: 56,
+                height: 56,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
@@ -251,7 +259,7 @@ class _GroupTile extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(
+              const Icon(
                 Icons.chat_bubble_outline_rounded,
                 color: AppColors.textTertiary,
               ),

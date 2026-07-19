@@ -17,7 +17,7 @@ import '../../../chat/application/chat_controller.dart';
 import '../../../social/application/social_controller.dart';
 import '../../application/game_rooms_controller.dart';
 
-/// Middle tab: groups, practice tables, and game rooms.
+/// Rooms hub: groups, practice tables, and game rooms.
 class RoomsHubScreen extends ConsumerStatefulWidget {
   const RoomsHubScreen({super.key});
 
@@ -66,7 +66,7 @@ class _RoomsHubScreenState extends ConsumerState<RoomsHubScreen>
           ),
           IconButton(
             tooltip: s.directInbox,
-            onPressed: () => context.push('/rooms/inbox'),
+            onPressed: () => context.push('/chats'),
             icon: Badge(
               isLabelVisible: dms.any((c) => c.unreadCount > 0),
               child: const Icon(Icons.mail_outline_rounded),
@@ -437,11 +437,18 @@ class _GameRoomCard extends ConsumerWidget {
       color: context.isDark
           ? AppColors.surfaceElevatedDark
           : AppColors.surfaceElevated,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: AppRadius.borderXl,
       child: InkWell(
         onTap: () => context.push('/rooms/games/mafia/${room.id}'),
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
+        borderRadius: AppRadius.borderXl,
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: AppRadius.borderXl,
+            border: Border.all(
+              color: context.isDark ? AppColors.borderDark : AppColors.border,
+            ),
+            boxShadow: context.isDark ? null : AppShadows.soft,
+          ),
           padding: const EdgeInsets.all(14),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -465,7 +472,7 @@ class _GameRoomCard extends ConsumerWidget {
                       color: room.status == GameRoomStatus.playing
                           ? AppColors.error.withOpacity(0.12)
                           : AppColors.primarySurface,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppRadius.borderFull,
                     ),
                     child: Text(
                       statusLabel,
@@ -504,8 +511,8 @@ class _GameRoomCard extends ConsumerWidget {
                       onPressed: () =>
                           context.push('/rooms/games/mafia/${room.id}'),
                       style: FilledButton.styleFrom(
-                        minimumSize: const Size(0, 34),
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        minimumSize: const Size(0, 40),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         visualDensity: VisualDensity.compact,
                       ),
                       child: Text(s.open),
@@ -525,8 +532,8 @@ class _GameRoomCard extends ConsumerWidget {
                               }
                             },
                       style: FilledButton.styleFrom(
-                        minimumSize: const Size(0, 34),
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        minimumSize: const Size(0, 40),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         visualDensity: VisualDensity.compact,
                       ),
                       child: Text(room.isJoinable ? s.join : s.full),

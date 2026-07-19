@@ -582,7 +582,7 @@ class PictureWordsCatalog {
       word: 'City',
       hint: 'Places · transport, people, buildings',
       icon: Icons.location_city,
-      color: const Color(0xFF8B5CF6),
+      color: const Color(0xFF2563EB),
       minWords: 7,
       xpReward: 90,
       acceptedWords: const [

@@ -9,11 +9,15 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../features/auth/application/auth_controller.dart';
 import '../../../../shared/models/goal_map.dart';
+import '../../../../shared/models/social_models.dart';
+import '../../../../shared/models/user_profile.dart';
 import '../../../../shared/providers/locale_provider.dart';
 import '../../../../shared/widgets/app_avatar.dart';
 import '../../../../shared/widgets/loading_view.dart';
+import '../../../../shared/widgets/premium_card.dart';
 import '../../../../shared/widgets/section_header.dart';
 import '../../../goal_map/application/goal_map_controller.dart';
+import '../../../social/application/social_controller.dart';
 import '../../application/home_controller.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -24,11 +28,14 @@ class HomeScreen extends ConsumerWidget {
     final home = ref.watch(homeControllerProvider);
     final user = ref.watch(authControllerProvider).user;
     final s = ref.watch(appStringsProvider);
+    final social = ref.watch(socialControllerProvider);
 
     if (home.isLoading) return const Scaffold(body: HomeShimmer());
 
     final firstName = user?.displayName.split(' ').first ?? s.learner;
     final goalMap = ref.watch(goalMapControllerProvider).plan;
+    final partners = home.online.take(8).toList();
+    final rooms = social.rooms.take(4).toList();
 
     return Scaffold(
       body: SafeArea(
@@ -39,7 +46,7 @@ class HomeScreen extends ConsumerWidget {
             slivers: [
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  padding: const EdgeInsets.fromLTRB(20, 12, 12, 8),
                   child: Row(
                     children: [
                       Expanded(
@@ -48,13 +55,18 @@ class HomeScreen extends ConsumerWidget {
                           children: [
                             Text(
                               s.hello(firstName),
-                              style: context.textTheme.headlineSmall,
+                              style: context.textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 6),
                             Row(
                               children: [
-                                const Icon(Icons.local_fire_department,
-                                    size: 18, color: AppColors.streakOrange),
+                                const Icon(
+                                  Icons.local_fire_department_rounded,
+                                  size: 18,
+                                  color: AppColors.streakOrange,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   s.dayStreak(
@@ -65,14 +77,17 @@ class HomeScreen extends ConsumerWidget {
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                const SizedBox(width: 12),
-                                const Icon(Icons.bolt,
-                                    size: 18, color: AppColors.xpGold),
+                                const SizedBox(width: 14),
+                                const Icon(
+                                  Icons.bolt_rounded,
+                                  size: 18,
+                                  color: AppColors.xpGold,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   '${user?.xp ?? 0} XP',
                                   style: context.textTheme.bodySmall?.copyWith(
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
                               ],
@@ -82,6 +97,11 @@ class HomeScreen extends ConsumerWidget {
                       ),
                       IconButton(
                         onPressed: () => context.push('/notifications'),
+                        style: IconButton.styleFrom(
+                          backgroundColor: context.isDark
+                              ? AppColors.surfaceElevatedDark
+                              : AppColors.secondary,
+                        ),
                         icon: const Icon(Icons.notifications_none_rounded),
                       ),
                     ],
@@ -99,131 +119,82 @@ class HomeScreen extends ConsumerWidget {
                   onTap: () => context.push('/goal-map'),
                 )
                     .animate()
-                    .fadeIn()
-                    .slideY(begin: 0.08, end: 0),
+                    .fadeIn(duration: 320.ms)
+                    .slideY(begin: 0.06, end: 0),
               ),
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-                  child: Text(
-                    s.explore,
-                    style: context.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
+                  child: FilledButton(
+                    onPressed: () => context.go('/ai'),
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(56),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: AppRadius.borderXl,
+                      ),
                     ),
-                  ),
+                    child: Text(
+                      s.startPracticing,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.4,
+                      ),
+                    ),
+                  )
+                      .animate()
+                      .fadeIn(delay: 80.ms)
+                      .scale(
+                        begin: const Offset(0.98, 0.98),
+                        end: const Offset(1, 1),
+                      ),
                 ),
               ),
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
                   child: Row(
                     children: [
                       Expanded(
-                        child: _ExploreShortcut(
-                          icon: Icons.explore_outlined,
-                          label: s.discover,
-                          color: AppColors.secondary,
+                        child: QuickActionTile(
+                          icon: Icons.person_search_rounded,
+                          label: s.findPartner,
+                          color: AppColors.accent,
                           onTap: () => context.push('/discover'),
                         ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: _ExploreShortcut(
-                          icon: Icons.bookmark_border_rounded,
-                          label: s.saves,
-                          color: AppColors.accent,
-                          onTap: () => context.push('/saves'),
+                        child: QuickActionTile(
+                          icon: Icons.graphic_eq_rounded,
+                          label: s.joinVoiceRoom,
+                          color: AppColors.primary,
+                          onTap: () => context.push('/rooms'),
                         ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: _ExploreShortcut(
-                          icon: Icons.sports_esports_outlined,
-                          label: s.games,
-                          color: AppColors.primary,
-                          onTap: () => context.push('/games'),
+                        child: QuickActionTile(
+                          icon: Icons.auto_awesome_rounded,
+                          label: s.practiceWithAi,
+                          color: AppColors.premiumPurple,
+                          onTap: () => context.go('/ai'),
                         ),
                       ),
                     ],
                   ),
                 ),
               ),
-              SectionHeader(title: s.continueLearning).asSliver,
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 112,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    children: [
-                      _ContinueCard(
-                        icon: Icons.sports_esports_outlined,
-                        title: s.games,
-                        subtitle: s.questsCards,
-                        color: AppColors.primary,
-                        onTap: () => context.push('/games'),
-                      ),
-                      _ContinueCard(
-                        icon: Icons.style_outlined,
-                        title: s.flashcards,
-                        subtitle: s.dueCount(home.reviewCount),
-                        color: AppColors.secondary,
-                        onTap: () => context.push('/games/flashcards'),
-                      ),
-                      _ContinueCard(
-                        icon: Icons.mic_none_rounded,
-                        title: s.speaking,
-                        subtitle: s.voiceCoach,
-                        color: AppColors.accent,
-                        onTap: () => context.push('/ai/voice'),
-                      ),
-                      _ContinueCard(
-                        icon: Icons.groups_2_outlined,
-                        title: s.navRooms,
-                        subtitle: s.roomsTables,
-                        color: AppColors.premiumPurple,
-                        onTap: () => context.go('/rooms'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
               SectionHeader(
-                title: s.aiSuggestions,
-                actionLabel: s.games,
-                onAction: () => context.push('/games'),
-              ).asSliver,
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 44,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: home.suggestions.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 8),
-                    itemBuilder: (_, i) {
-                      return ActionChip(
-                        label: Text(home.suggestions[i]),
-                        onPressed: () => context.push('/games/quests'),
-                        backgroundColor: context.isDark
-                            ? AppColors.surfaceElevatedDark
-                            : AppColors.surface,
-                      );
-                    },
-                  ),
-                ),
-              ),
-              SectionHeader(
-                title: s.onlineNow,
-                actionLabel: s.discover,
+                title: s.peopleOnline,
+                actionLabel: s.seeAll,
                 onAction: () => context.push('/discover'),
               ).asSliver,
               SliverToBoxAdapter(
                 child: SizedBox(
-                  height: 96,
+                  height: 100,
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     itemCount: home.online.length,
                     separatorBuilder: (_, __) => const SizedBox(width: 14),
                     itemBuilder: (_, i) {
@@ -237,17 +208,19 @@ class HomeScreen extends ConsumerWidget {
                               url: u.avatarUrl,
                               status: u.status,
                               showStatus: true,
-                              size: 56,
+                              size: 58,
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 8),
                             SizedBox(
-                              width: 64,
+                              width: 68,
                               child: Text(
                                 u.displayName.split(' ').first,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 textAlign: TextAlign.center,
-                                style: context.textTheme.labelSmall,
+                                style: context.textTheme.labelMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ],
@@ -258,138 +231,210 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
               SectionHeader(
-                title: s.recommendedGroups,
+                title: s.recommendedPartners,
                 actionLabel: s.seeAll,
                 onAction: () => context.push('/discover'),
               ).asSliver,
-              SliverList.builder(
-                itemCount: home.recommendedGroups.length,
-                itemBuilder: (_, i) {
-                  final g = home.recommendedGroups[i];
-                  final langs = g.languageCodes.isEmpty
-                      ? ''
-                      : g.languageCodes.map((c) => c.toUpperCase()).join(' · ');
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: InkWell(
-                      onTap: () => context.push('/chat/${g.id}'),
-                      borderRadius: BorderRadius.circular(16),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          AppAvatar(
-                            name: g.displayTitle,
-                            url: g.avatarUrl,
-                            size: 52,
-                            isGroup: true,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  g.displayTitle,
-                                  style: context.textTheme.titleSmall,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  g.description.isNotEmpty
-                                      ? g.description
-                                      : '${g.members.length} members',
-                                  style: context.textTheme.bodySmall,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                if (langs.isNotEmpty) ...[
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    langs,
-                                    style: context.textTheme.labelSmall,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          SizedBox(
-                            height: 36,
-                            child: FilledButton(
-                              onPressed: () => context.push('/chat/${g.id}'),
-                              style: FilledButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                ),
-                                minimumSize: const Size(0, 36),
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                visualDensity: VisualDensity.compact,
-                              ),
-                              child: Text(s.join),
-                            ),
-                          ),
-                        ],
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 168,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: partners.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    itemBuilder: (_, i) => SizedBox(
+                      width: 160,
+                      height: 168,
+                      child: _PartnerCard(
+                        user: partners[i],
+                        followLabel: s.follow,
+                        chatLabel: s.chat,
                       ),
                     ),
-                  );
-                },
+                  ),
+                ),
               ),
               SectionHeader(
-                title: s.recentChats,
-                actionLabel: s.open,
-                onAction: () => context.go('/rooms/inbox'),
+                title: s.continueLearning,
+                actionLabel: s.games,
+                onAction: () => context.push('/games'),
               ).asSliver,
-              SliverList.builder(
-                itemCount: home.recentChats.length,
-                itemBuilder: (_, i) {
-                  final c = home.recentChats[i];
-                  return ListTile(
-                    onTap: () => context.push('/chat/${c.id}'),
-                    leading: AppAvatar(
-                      name: c.peer?.displayName ?? c.displayTitle,
-                      url: c.peer?.avatarUrl,
-                      status: c.peer?.status,
-                      showStatus: c.peer != null,
-                    ),
-                    title: Text(c.displayTitle),
-                    subtitle: Text(
-                      c.lastMessage?.text ??
-                          (c.lastMessage?.type.name == 'voice'
-                              ? 'Voice message'
-                              : ''),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    trailing: c.unreadCount > 0
-                        ? CircleAvatar(
-                            radius: 11,
-                            backgroundColor: AppColors.primary,
-                            child: Text(
-                              '${c.unreadCount}',
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: Colors.white,
-                              ),
-                            ),
-                          )
-                        : null,
-                  );
-                },
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 118,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    children: [
+                      _ContinueCard(
+                        icon: Icons.sports_esports_outlined,
+                        title: s.games,
+                        subtitle: s.questsCards,
+                        color: AppColors.primary,
+                        onTap: () => context.push('/games'),
+                      ),
+                      _ContinueCard(
+                        icon: Icons.style_outlined,
+                        title: s.flashcards,
+                        subtitle: s.dueCount(home.reviewCount),
+                        color: AppColors.accent,
+                        onTap: () => context.push('/games/flashcards'),
+                      ),
+                      _ContinueCard(
+                        icon: Icons.mic_none_rounded,
+                        title: s.speaking,
+                        subtitle: s.voiceCoach,
+                        color: AppColors.warning,
+                        onTap: () => context.push('/ai/voice'),
+                      ),
+                      _ContinueCard(
+                        icon: Icons.groups_2_outlined,
+                        title: s.navRooms,
+                        subtitle: s.roomsTables,
+                        color: AppColors.success,
+                        onTap: () => context.push('/rooms'),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+              SectionHeader(
+                title: s.vocabularyReview,
+                actionLabel: s.review,
+                onAction: () => context.go('/vocabulary'),
+              ).asSliver,
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: PremiumCard(
+                    onTap: () => context.push('/games/flashcards'),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: AppColors.primarySurface,
+                            borderRadius: AppRadius.borderLg,
+                          ),
+                          child: const Icon(
+                            Icons.style_rounded,
+                            color: AppColors.primaryDark,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                s.wordsDue(home.reviewCount),
+                                style: context.textTheme.titleSmall,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                s.questsCards,
+                                style: context.textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                        FilledButton(
+                          onPressed: () =>
+                              context.push('/games/flashcards'),
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size(0, 40),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                          ),
+                          child: Text(s.review),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SectionHeader(
+                title: s.trendingVoiceRooms,
+                actionLabel: s.seeAll,
+                onAction: () => context.push('/social'),
+              ).asSliver,
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 148,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: rooms.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    itemBuilder: (_, i) => SizedBox(
+                      width: 212,
+                      height: 148,
+                      child: _VoiceRoomCard(
+                        room: rooms[i],
+                        liveLabel: s.live,
+                        joinLabel: s.join,
+                        onlineLabel: s.onlineCount(rooms[i].onlineCount),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SectionHeader(
+                title: s.popularGames,
+                actionLabel: s.seeAll,
+                onAction: () => context.push('/games'),
+              ).asSliver,
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    children: [
+                      _GameRow(
+                        icon: Icons.style_outlined,
+                        color: AppColors.accent,
+                        title: s.flashcards,
+                        subtitle: s.dueCount(home.reviewCount),
+                        action: s.play,
+                        onTap: () => context.push('/games/flashcards'),
+                      ),
+                      const SizedBox(height: 10),
+                      _GameRow(
+                        icon: Icons.theater_comedy_outlined,
+                        color: AppColors.primary,
+                        title: 'AI Quest Chat',
+                        subtitle: s.questsCards,
+                        action: s.play,
+                        onTap: () => context.push('/games/quests'),
+                      ),
+                      const SizedBox(height: 10),
+                      _GameRow(
+                        icon: Icons.image_search_outlined,
+                        color: AppColors.warning,
+                        title: 'Picture Words',
+                        subtitle: s.games,
+                        action: s.play,
+                        onTap: () => context.push('/games/picture-words'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const ContainedSliver(child: SizedBox(height: 28)),
             ],
           ),
         ),
       ),
     );
   }
+}
+
+class ContainedSliver extends StatelessWidget {
+  const ContainedSliver({super.key, required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => SliverToBoxAdapter(child: child);
 }
 
 class _DailyGoalCard extends StatelessWidget {
@@ -412,81 +457,75 @@ class _DailyGoalCard extends StatelessWidget {
     final mapProgress = goalMap?.displayProgress;
     final shown = mapProgress ?? progress;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: AppColors.brandGradientSoft,
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: AppRadius.borderXl,
+          child: Ink(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: AppRadius.borderXl,
+              boxShadow: AppShadows.primaryGlow,
             ),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withOpacity(0.28),
-                blurRadius: 18,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              CircularPercentIndicator(
-                radius: 36,
-                lineWidth: 7,
-                percent: shown.clamp(0.0, 1.0),
-                animation: true,
-                circularStrokeCap: CircularStrokeCap.round,
-                backgroundColor: Colors.white24,
-                progressColor: Colors.white,
-                center: Text(
-                  '${(shown * 100).round()}%',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13,
+            child: Row(
+              children: [
+                CircularPercentIndicator(
+                  radius: 38,
+                  lineWidth: 7,
+                  percent: shown.clamp(0.0, 1.0),
+                  animation: true,
+                  circularStrokeCap: CircularStrokeCap.round,
+                  backgroundColor: Colors.white24,
+                  progressColor: Colors.white,
+                  center: Text(
+                    '${(shown * 100).round()}%',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          title,
-                          style: context.textTheme.titleMedium?.copyWith(
-                            color: Colors.white,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            title,
+                            style: context.textTheme.titleMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                        ),
-                        const Spacer(),
-                        Icon(
-                          Icons.chevron_right,
-                          color: Colors.white.withOpacity(0.9),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.textTheme.bodySmall?.copyWith(
-                        color: Colors.white.withOpacity(0.9),
+                          const Spacer(),
+                          Icon(
+                            Icons.chevron_right_rounded,
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 6),
+                      Text(
+                        subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: Colors.white.withOpacity(0.92),
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -494,52 +533,213 @@ class _DailyGoalCard extends StatelessWidget {
   }
 }
 
-class _ExploreShortcut extends StatelessWidget {
-  const _ExploreShortcut({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
+class _PartnerCard extends StatelessWidget {
+  const _PartnerCard({
+    required this.user,
+    required this.followLabel,
+    required this.chatLabel,
   });
 
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
+  final UserProfile user;
+  final String followLabel;
+  final String chatLabel;
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: context.isDark
-          ? AppColors.surfaceElevatedDark
-          : AppColors.surfaceElevated,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          child: Column(
+    final learning = user.learningLanguages.isNotEmpty
+        ? user.learningLanguages.first.name
+        : '—';
+
+    return PremiumCard(
+      padding: const EdgeInsets.all(14),
+      onTap: () => context.push('/users/${user.id}'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.14),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: color),
+              AppAvatar(
+                name: user.displayName,
+                url: user.avatarUrl,
+                status: user.status,
+                showStatus: true,
+                size: 44,
               ),
-              const SizedBox(height: 8),
-              Text(
-                label,
-                style: context.textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
+              const Spacer(),
+              if (user.countryCode != null)
+                Text(
+                  user.countryCode!,
+                  style: context.textTheme.labelSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            user.displayName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.textTheme.titleSmall,
+          ),
+          Text(
+            '${user.nativeLanguage} → $learning',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.textTheme.bodySmall,
+          ),
+          const Spacer(),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => context.push('/users/${user.id}'),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(0, 32),
+                    padding: EdgeInsets.zero,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  child: Text(followLabel, style: const TextStyle(fontSize: 12)),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: FilledButton(
+                  onPressed: () => context.push('/chat/c_${user.id}'),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(0, 32),
+                    padding: EdgeInsets.zero,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  child: Text(chatLabel, style: const TextStyle(fontSize: 12)),
                 ),
               ),
             ],
           ),
-        ),
+        ],
+      ),
+    );
+  }
+}
+
+class _VoiceRoomCard extends StatelessWidget {
+  const _VoiceRoomCard({
+    required this.room,
+    required this.liveLabel,
+    required this.joinLabel,
+    required this.onlineLabel,
+  });
+
+  final LanguageRoom room;
+  final String liveLabel;
+  final String joinLabel;
+  final String onlineLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return PremiumCard(
+      onTap: () => context.push('/social/rooms/${room.id}'),
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(room.topic.emoji, style: const TextStyle(fontSize: 22)),
+              const Spacer(),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.primarySurface,
+                  borderRadius: AppRadius.borderFull,
+                ),
+                child: Text(
+                  liveLabel,
+                  style: context.textTheme.labelSmall?.copyWith(
+                    color: AppColors.primaryDark,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            room.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.textTheme.titleSmall,
+          ),
+          Text(
+            onlineLabel,
+            style: context.textTheme.bodySmall,
+          ),
+          const Spacer(),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () => context.push('/social/rooms/${room.id}'),
+              child: Text(joinLabel),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GameRow extends StatelessWidget {
+  const _GameRow({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.subtitle,
+    required this.action,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String subtitle;
+  final String action;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return PremiumCard(
+      onTap: onTap,
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.12),
+              borderRadius: AppRadius.borderLg,
+            ),
+            child: Icon(icon, color: color),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: context.textTheme.titleSmall),
+                Text(subtitle, style: context.textTheme.bodySmall),
+              ],
+            ),
+          ),
+          Text(
+            action,
+            style: context.textTheme.labelLarge?.copyWith(
+              color: AppColors.primary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -562,29 +762,22 @@ class _ContinueCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 148,
-        margin: const EdgeInsets.only(right: 12),
+    return Padding(
+      padding: const EdgeInsets.only(right: 12),
+      child: PremiumCard(
+        onTap: onTap,
         padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: context.isDark
-              ? AppColors.surfaceElevatedDark
-              : AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: context.isDark ? AppColors.borderDark : AppColors.border,
+        child: SizedBox(
+          width: 140,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, color: color),
+              const Spacer(),
+              Text(title, style: context.textTheme.titleSmall),
+              Text(subtitle, style: context.textTheme.bodySmall),
+            ],
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, color: color),
-            const Spacer(),
-            Text(title, style: context.textTheme.titleSmall),
-            Text(subtitle, style: context.textTheme.bodySmall),
-          ],
         ),
       ),
     );

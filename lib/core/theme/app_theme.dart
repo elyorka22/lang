@@ -21,20 +21,20 @@ class AppTheme {
           ? AppColors.primaryDark
           : AppColors.primarySurface,
       onPrimaryContainer: isDark ? AppColors.primaryLight : AppColors.primaryDark,
-      secondary: AppColors.secondary,
+      secondary: AppColors.accent,
       onSecondary: Colors.white,
       secondaryContainer: isDark
-          ? const Color(0xFF164E63)
-          : const Color(0xFFCFFAFE),
+          ? const Color(0xFF1E3A8A)
+          : const Color(0xFFDBEAFE),
       onSecondaryContainer:
-          isDark ? const Color(0xFFA5F3FC) : const Color(0xFF155E75),
-      tertiary: AppColors.accent,
+          isDark ? const Color(0xFFBFDBFE) : const Color(0xFF1E40AF),
+      tertiary: AppColors.primaryDark,
       onTertiary: Colors.white,
       tertiaryContainer: isDark
-          ? const Color(0xFF831843)
-          : const Color(0xFFFCE7F3),
+          ? const Color(0xFF14532D)
+          : AppColors.primarySurface,
       onTertiaryContainer:
-          isDark ? const Color(0xFFFBCFE8) : const Color(0xFF9D174D),
+          isDark ? const Color(0xFFBBF7D0) : AppColors.primaryDark,
       error: AppColors.error,
       onError: Colors.white,
       surface: isDark ? AppColors.surfaceDark : AppColors.background,
@@ -111,7 +111,7 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: isDark ? AppColors.surfaceElevatedDark : AppColors.surface,
+        fillColor: isDark ? AppColors.surfaceElevatedDark : AppColors.secondary,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
           vertical: AppSpacing.md,

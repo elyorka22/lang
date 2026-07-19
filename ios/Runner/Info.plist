@@ -48,8 +48,8 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Lingua needs the microphone for voice messages and pronunciation practice.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Lingua needs the camera to share photos in chat.</string>
+	<string>Lingua needs the camera to take a profile photo.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Lingua needs photo access to share images in chat.</string>
+	<string>Lingua needs photo access to set your profile picture.</string>
 </dict>
 </plist>

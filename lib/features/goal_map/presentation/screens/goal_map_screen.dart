@@ -330,12 +330,9 @@ class _ActiveGoalMap extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: AppColors.brandGradientSoft,
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(20),
+            color: AppColors.primary,
+            borderRadius: AppRadius.borderXl,
+            boxShadow: AppShadows.primaryGlow,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

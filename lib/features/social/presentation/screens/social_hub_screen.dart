@@ -116,8 +116,9 @@ class _KarmaCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: AppColors.brandGradientSoft),
-        borderRadius: BorderRadius.circular(20),
+        color: AppColors.primary,
+        borderRadius: AppRadius.borderXl,
+        boxShadow: AppShadows.primaryGlow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

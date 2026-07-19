@@ -50,6 +50,14 @@ class LocalStorageService {
     return _settings.put('goalMap', json);
   }
 
+  // Saved profile overrides (avatar path, name, bio) for mock/local mode.
+  String? get profileOverridesJson =>
+      _settings.get('profileOverrides') as String?;
+  Future<void> setProfileOverridesJson(String? json) {
+    if (json == null) return _settings.delete('profileOverrides');
+    return _settings.put('profileOverrides', json);
+  }
+
   // Cache helpers
   Future<void> putCache(String key, dynamic value) => _cache.put(key, value);
   T? getCache<T>(String key) => _cache.get(key) as T?;

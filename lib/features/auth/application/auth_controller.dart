@@ -154,6 +154,35 @@ class AuthController extends StateNotifier<AuthState> {
     state = const AuthState(status: AuthStatus.unauthenticated);
   }
 
+  Future<bool> updateProfile({
+    String? displayName,
+    String? bio,
+    String? avatarUrl,
+    bool clearAvatar = false,
+  }) async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    final result = await _repo.updateProfile(
+      displayName: displayName,
+      bio: bio,
+      avatarUrl: avatarUrl,
+      clearAvatar: clearAvatar,
+    );
+    return result.when(
+      success: (user) {
+        state = state.copyWith(
+          user: user,
+          isLoading: false,
+          status: AuthStatus.authenticated,
+        );
+        return true;
+      },
+      failure: (f) {
+        state = state.copyWith(isLoading: false, error: f.message);
+        return false;
+      },
+    );
+  }
+
   bool _applyAuthResult(dynamic result) {
     return result.when(
       success: (user) {

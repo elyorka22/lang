@@ -102,24 +102,24 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/rooms',
-                builder: (_, __) => const RoomsHubScreen(),
-                routes: [
-                  GoRoute(
-                    path: 'inbox',
-                    builder: (_, __) => const ChatsScreen(inboxOnly: true),
-                  ),
-                  GoRoute(
-                    path: 'games/mafia/create',
-                    builder: (_, __) => const CreateMafiaRoomScreen(),
-                  ),
-                  GoRoute(
-                    path: 'games/mafia/:id',
-                    builder: (_, state) => MafiaRoomScreen(
-                      roomId: state.pathParameters['id']!,
-                    ),
-                  ),
-                ],
+                path: '/chats',
+                builder: (_, __) => const ChatsScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/ai',
+                builder: (_, __) => const AiScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/vocabulary',
+                builder: (_, __) => const VocabularyScreen(),
               ),
             ],
           ),
@@ -134,8 +134,24 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(
-        path: '/chats',
-        redirect: (_, __) => '/rooms',
+        path: '/rooms',
+        builder: (_, __) => const RoomsHubScreen(),
+        routes: [
+          GoRoute(
+            path: 'inbox',
+            redirect: (_, __) => '/chats',
+          ),
+          GoRoute(
+            path: 'games/mafia/create',
+            builder: (_, __) => const CreateMafiaRoomScreen(),
+          ),
+          GoRoute(
+            path: 'games/mafia/:id',
+            builder: (_, state) => MafiaRoomScreen(
+              roomId: state.pathParameters['id']!,
+            ),
+          ),
+        ],
       ),
       GoRoute(
         path: '/goal-map',
@@ -176,10 +192,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, state) => PictureWordsPlayScreen(
           levelId: state.pathParameters['id']!,
         ),
-      ),
-      GoRoute(
-        path: '/ai',
-        builder: (_, __) => const AiScreen(),
       ),
       GoRoute(
         path: '/social',
@@ -233,10 +245,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, state) => ProfileScreen(
           userId: state.pathParameters['id'],
         ),
-      ),
-      GoRoute(
-        path: '/vocabulary',
-        builder: (_, __) => const VocabularyScreen(),
       ),
       GoRoute(
         path: '/vocabulary/flashcards',
