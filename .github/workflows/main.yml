@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
 
     steps:
       - name: Checkout repository
@@ -19,6 +20,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
+          cache: gradle
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -26,11 +28,55 @@ jobs:
           channel: stable
           cache: true
 
+      - name: Cache Gradle wrapper
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/**/*.gradle*') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Pin Gradle distribution URL
+        run: |
+          PROPS=android/gradle/wrapper/gradle-wrapper.properties
+          mkdir -p android/gradle/wrapper
+          if [ ! -f "$PROPS" ]; then
+            printf '%s\n' \
+              'distributionBase=GRADLE_USER_HOME' \
+              'distributionPath=wrapper/dists' \
+              'zipStoreBase=GRADLE_USER_HOME' \
+              'zipStorePath=wrapper/dists' \
+              'distributionUrl=https\://services.gradle.org/distributions/gradle-8.14-all.zip' \
+              'networkTimeout=60000' > "$PROPS"
+          fi
+          sed -i 's|distributionUrl=.*github.com/gradle/gradle-distributions.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.14-all.zip|' "$PROPS"
+          if ! grep -q 'services.gradle.org' "$PROPS"; then
+            sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.14-all.zip|' "$PROPS"
+          fi
+          cat "$PROPS"
+
       - name: Build APK
-        run: flutter build apk --release
+        run: |
+          PROPS=android/gradle/wrapper/gradle-wrapper.properties
+          for attempt in 1 2 3; do
+            if [ -f "$PROPS" ]; then
+              sed -i 's|distributionUrl=.*github.com/gradle/gradle-distributions.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.14-all.zip|' "$PROPS"
+            fi
+            echo "Build attempt ${attempt}..."
+            if flutter build apk --release; then
+              exit 0
+            fi
+            echo "Attempt ${attempt} failed."
+            if [ "$attempt" -lt 3 ]; then
+              sleep 20
+            fi
+          done
+          exit 1
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
