@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
 
     steps:
       - name: Checkout repository
@@ -28,55 +28,120 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Cache Gradle wrapper
+      - name: Cache Gradle
         uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/**/*.gradle*') }}
+          key: gradle-${{ runner.os }}-8.14-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/**/*.gradle*') }}
           restore-keys: |
+            gradle-${{ runner.os }}-8.14-
             gradle-${{ runner.os }}-
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Pin Gradle distribution URL
+      - name: Pre-cache Gradle distribution
+        env:
+          GRADLE_VERSION: "8.14"
         run: |
-          PROPS=android/gradle/wrapper/gradle-wrapper.properties
-          mkdir -p android/gradle/wrapper
-          if [ ! -f "$PROPS" ]; then
-            printf '%s\n' \
-              'distributionBase=GRADLE_USER_HOME' \
-              'distributionPath=wrapper/dists' \
-              'zipStoreBase=GRADLE_USER_HOME' \
-              'zipStorePath=wrapper/dists' \
-              'distributionUrl=https\://services.gradle.org/distributions/gradle-8.14-all.zip' \
-              'networkTimeout=60000' > "$PROPS"
-          fi
-          sed -i 's|distributionUrl=.*github.com/gradle/gradle-distributions.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.14-all.zip|' "$PROPS"
-          if ! grep -q 'services.gradle.org' "$PROPS"; then
-            sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.14-all.zip|' "$PROPS"
-          fi
-          cat "$PROPS"
+          set -euo pipefail
+          DIST_NAME="gradle-${GRADLE_VERSION}-all"
+          ZIP_NAME="${DIST_NAME}.zip"
+          TMP_ZIP="/tmp/${ZIP_NAME}"
 
-      - name: Build APK
-        run: |
-          PROPS=android/gradle/wrapper/gradle-wrapper.properties
-          for attempt in 1 2 3; do
-            if [ -f "$PROPS" ]; then
-              sed -i 's|distributionUrl=.*github.com/gradle/gradle-distributions.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.14-all.zip|' "$PROPS"
-            fi
-            echo "Build attempt ${attempt}..."
-            if flutter build apk --release; then
-              exit 0
-            fi
-            echo "Attempt ${attempt} failed."
-            if [ "$attempt" -lt 3 ]; then
-              sleep 20
+          hash36() {
+            python3 - "$1" <<'PY'
+          import hashlib, sys
+          url = sys.argv[1]
+          n = int.from_bytes(hashlib.md5(url.encode('utf-8')).digest(), 'big')
+          digits = '0123456789abcdefghijklmnopqrstuvwxyz'
+          if n == 0:
+              print('0')
+          else:
+              out = ''
+              while n:
+                  n, r = divmod(n, 36)
+                  out = digits[r] + out
+              print(out)
+          PY
+          }
+
+          URLS=(
+            "https://services.gradle.org/distributions/${ZIP_NAME}"
+            "https://github.com/gradle/gradle-distributions/releases/download/v${GRADLE_VERSION}.0/${ZIP_NAME}"
+            "https://mirrors.cloud.tencent.com/gradle/${ZIP_NAME}"
+            "https://mirrors.huaweicloud.com/gradle/${ZIP_NAME}"
+          )
+
+          rm -f "$TMP_ZIP"
+          downloaded=0
+          for url in "${URLS[@]}"; do
+            echo "Trying download: $url"
+            if curl -fL --retry 5 --retry-delay 5 --retry-all-errors \
+                --connect-timeout 30 --max-time 600 \
+                -o "$TMP_ZIP" "$url"; then
+              # Basic sanity: zip header
+              if python3 - <<PY
+          import pathlib, sys
+          data = pathlib.Path("$TMP_ZIP").read_bytes()[:4]
+          sys.exit(0 if data == b"PK\x03\x04" else 1)
+          PY
+              then
+                echo "Downloaded OK from $url"
+                downloaded=1
+                break
+              fi
+              echo "Downloaded file is not a zip, retrying next mirror…"
+              rm -f "$TMP_ZIP"
+            else
+              echo "Download failed for $url"
+              rm -f "$TMP_ZIP"
             fi
           done
-          exit 1
+
+          if [ "$downloaded" -ne 1 ]; then
+            echo "Failed to download Gradle from all mirrors"
+            exit 1
+          fi
+
+          seed_url() {
+            local url="$1"
+            local hash
+            hash="$(hash36 "$url")"
+            local dir="$HOME/.gradle/wrapper/dists/${DIST_NAME}/${hash}"
+            echo "Seeding wrapper cache for $url -> $dir"
+            rm -rf "$dir"
+            mkdir -p "$dir"
+            cp "$TMP_ZIP" "$dir/${ZIP_NAME}"
+            unzip -q -o "$dir/${ZIP_NAME}" -d "$dir"
+            # Marker used by Gradle wrapper Install to skip re-download
+            touch "$dir/${ZIP_NAME}.ok"
+            # Verify extracted binary exists
+            test -x "$dir/gradle-${GRADLE_VERSION}/bin/gradle"
+          }
+
+          # Seed both official and GitHub URL hashes (Flutter/AGP may rewrite the URL).
+          seed_url "https://services.gradle.org/distributions/${ZIP_NAME}"
+          seed_url "https://github.com/gradle/gradle-distributions/releases/download/v${GRADLE_VERSION}.0/${ZIP_NAME}"
+
+          # Keep project wrapper on services.gradle.org; wrapper will still work if rewritten.
+          PROPS=android/gradle/wrapper/gradle-wrapper.properties
+          mkdir -p android/gradle/wrapper
+          printf '%s\n' \
+            'distributionBase=GRADLE_USER_HOME' \
+            'distributionPath=wrapper/dists' \
+            'zipStoreBase=GRADLE_USER_HOME' \
+            'zipStorePath=wrapper/dists' \
+            "distributionUrl=https\\://services.gradle.org/distributions/${ZIP_NAME}" \
+            'networkTimeout=120000' \
+            'validateDistributionUrl=false' > "$PROPS"
+          cat "$PROPS"
+          ls -la "$HOME/.gradle/wrapper/dists/${DIST_NAME}/"
+
+      - name: Build APK
+        run: flutter build apk --release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
