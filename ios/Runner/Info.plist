@@ -47,6 +47,8 @@
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Lingua needs the microphone for voice messages and pronunciation practice.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Lingua uses speech recognition to check your pronunciation during lessons.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Lingua needs the camera to take a profile photo.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

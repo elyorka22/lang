@@ -599,6 +599,19 @@ class MockData {
       nextReviewAt: DateTime.now(),
       createdAt: DateTime.now().subtract(const Duration(hours: 5)),
     ),
+    VocabularyItem(
+      id: 'v4',
+      word: 'coffee',
+      translation: 'coffee',
+      definition: 'A hot drink made from roasted beans.',
+      example: 'I would like some coffee.',
+      pronunciation: 'KAW-fee',
+      sourceLanguage: 'en',
+      targetLanguage: 'en',
+      isFavorite: true,
+      nextReviewAt: DateTime.now(),
+      createdAt: DateTime.now(),
+    ),
   ];
 
   static final notifications = <AppNotification>[

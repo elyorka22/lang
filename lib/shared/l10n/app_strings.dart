@@ -193,6 +193,20 @@ class AppStrings {
     'save': 'Save',
     'profileUpdated': 'Profile updated',
     'profileUpdateFailed': 'Could not update profile',
+    'stopListening': 'Stop',
+    'listening': 'Listening… speak now',
+    'recognizedText': 'Recognized',
+    'pronunciationCorrect': 'Correct!',
+    'pronunciationScore': 'Score: {n}%',
+    'overallScore': 'Overall Score: {n}%',
+    'matchedWords': 'Matched words',
+    'missingWords': 'Missing words',
+    'extraWords': 'Extra words',
+    'incorrectWords': 'Incorrect words',
+    'ratingExcellent': 'Excellent',
+    'ratingGood': 'Good',
+    'ratingNeedsPractice': 'Needs Practice',
+    'tapMicToPractice': 'Tap the microphone to practice pronunciation',
   };
 
   static const _ru = <String, String>{
@@ -381,6 +395,20 @@ class AppStrings {
     'save': 'Сохранить',
     'profileUpdated': 'Профиль обновлён',
     'profileUpdateFailed': 'Не удалось обновить профиль',
+    'stopListening': 'Стоп',
+    'listening': 'Слушаю… говорите',
+    'recognizedText': 'Распознано',
+    'pronunciationCorrect': 'Верно!',
+    'pronunciationScore': 'Оценка: {n}%',
+    'overallScore': 'Общая оценка: {n}%',
+    'matchedWords': 'Совпавшие слова',
+    'missingWords': 'Пропущенные слова',
+    'extraWords': 'Лишние слова',
+    'incorrectWords': 'Неверные слова',
+    'ratingExcellent': 'Отлично',
+    'ratingGood': 'Хорошо',
+    'ratingNeedsPractice': 'Нужна практика',
+    'tapMicToPractice': 'Нажмите микрофон для практики произношения',
   };
 
   static const _uz = <String, String>{
@@ -569,6 +597,20 @@ class AppStrings {
     'save': 'Saqlash',
     'profileUpdated': 'Profil yangilandi',
     'profileUpdateFailed': 'Profilni yangilab bo‘lmadi',
+    'stopListening': 'To‘xtatish',
+    'listening': 'Tinglayapman… gapiring',
+    'recognizedText': 'Tanildi',
+    'pronunciationCorrect': 'To‘g‘ri!',
+    'pronunciationScore': 'Ball: {n}%',
+    'overallScore': 'Umumiy ball: {n}%',
+    'matchedWords': 'Mos kelgan so‘zlar',
+    'missingWords': 'Yetishmayotgan so‘zlar',
+    'extraWords': 'Ortiqcha so‘zlar',
+    'incorrectWords': 'Noto‘g‘ri so‘zlar',
+    'ratingExcellent': 'A’lo',
+    'ratingGood': 'Yaxshi',
+    'ratingNeedsPractice': 'Mashq kerak',
+    'tapMicToPractice': 'Talaffuz mashqi uchun mikrofonga bosing',
   };
 
   Map<String, String> get _table {
@@ -770,6 +812,20 @@ class AppStrings {
   String get save => t('save');
   String get profileUpdated => t('profileUpdated');
   String get profileUpdateFailed => t('profileUpdateFailed');
+  String get stopListening => t('stopListening');
+  String get listening => t('listening');
+  String get recognizedText => t('recognizedText');
+  String get pronunciationCorrect => t('pronunciationCorrect');
+  String get matchedWords => t('matchedWords');
+  String get missingWords => t('missingWords');
+  String get extraWords => t('extraWords');
+  String get incorrectWords => t('incorrectWords');
+  String get ratingExcellent => t('ratingExcellent');
+  String get ratingGood => t('ratingGood');
+  String get ratingNeedsPractice => t('ratingNeedsPractice');
+  String get tapMicToPractice => t('tapMicToPractice');
+  String pronunciationScore(int n) => t('pronunciationScore', {'n': '$n'});
+  String overallScore(int n) => t('overallScore', {'n': '$n'});
 
   String hello(String name) => t('hello', {'name': name});
   String dayStreak(int n) => t('dayStreak', {'n': '$n'});
