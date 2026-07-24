@@ -30,7 +30,13 @@ class WordMatch extends Equatable {
 enum PronunciationRating {
   excellent,
   good,
-  needsPractice,
+  needsPractice;
+
+  static PronunciationRating fromScore(int score) {
+    if (score >= 90) return PronunciationRating.excellent;
+    if (score >= 75) return PronunciationRating.good;
+    return PronunciationRating.needsPractice;
+  }
 }
 
 extension PronunciationRatingX on PronunciationRating {
@@ -43,12 +49,6 @@ extension PronunciationRatingX on PronunciationRating {
       case PronunciationRating.needsPractice:
         return 'Needs Practice';
     }
-  }
-
-  static PronunciationRating fromScore(int score) {
-    if (score >= 90) return PronunciationRating.excellent;
-    if (score >= 75) return PronunciationRating.good;
-    return PronunciationRating.needsPractice;
   }
 }
 

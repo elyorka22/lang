@@ -53,7 +53,7 @@ class PronunciationService {
 
     final resolvedLocale = await _resolveLocale(localeId);
 
-    return _speech.listen(
+    await _speech.listen(
       onResult: _handleResult,
       localeId: resolvedLocale,
       listenFor: listenFor,
@@ -62,6 +62,7 @@ class PronunciationService {
       cancelOnError: true,
       listenMode: ListenMode.confirmation,
     );
+    return _speech.isListening || _speech.isAvailable;
   }
 
   Future<String?> _resolveLocale(String? languageCode) async {
