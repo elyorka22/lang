@@ -3,6 +3,7 @@ import '../models/message.dart';
 import '../models/user_profile.dart';
 import '../models/vocabulary_item.dart';
 import '../models/conversation.dart';
+import 'vocab_deck.dart';
 
 /// Demo dataset so the app runs fully without a backend.
 class MockData {
@@ -542,107 +543,45 @@ class MockData {
   }
 
   static const dailyGoal = DailyGoal(
-    minutesDone: 8,
-    messagesDone: 6,
-    voiceDone: 1,
     wordsDone: 3,
-    aiLessonsDone: 0,
+    reviewsDone: 6,
   );
 
   static const stats = LearningStats(
     weeklyMinutes: [12, 25, 18, 30, 8, 22, 15],
     monthlyXp: [120, 200, 150, 300, 180, 220, 90],
     totalXp: 2480,
-    totalWords: 186,
-    totalMessages: 412,
+    totalWords: 36,
+    totalMessages: 0,
     currentStreak: 12,
     longestStreak: 28,
     level: 8,
   );
 
-  static final vocabulary = <VocabularyItem>[
-    VocabularyItem(
-      id: 'v1',
-      word: 'gustaría',
-      translation: 'would like',
-      definition: 'Conditional form of gustar — polite desire.',
-      example: 'Me gustaría viajar a España.',
-      pronunciation: 'goos-tah-REE-ah',
-      sourceLanguage: 'es',
-      targetLanguage: 'en',
-      isFavorite: true,
-      nextReviewAt: DateTime.now().add(const Duration(hours: 2)),
-      createdAt: DateTime.now().subtract(const Duration(days: 2)),
-    ),
-    VocabularyItem(
-      id: 'v2',
-      word: 'próximo',
-      translation: 'next / upcoming',
-      definition: 'Coming after the present in time.',
-      example: 'El próximo verano.',
-      pronunciation: 'PROHK-see-moh',
-      sourceLanguage: 'es',
-      targetLanguage: 'en',
-      nextReviewAt: DateTime.now().add(const Duration(days: 1)),
-      createdAt: DateTime.now().subtract(const Duration(days: 1)),
-    ),
-    VocabularyItem(
-      id: 'v3',
-      word: 'corriger',
-      translation: 'to correct',
-      definition: 'To make something right; to fix mistakes.',
-      example: 'Peux-tu corriger ma phrase?',
-      pronunciation: 'ko-ree-ZHAY',
-      sourceLanguage: 'fr',
-      targetLanguage: 'en',
-      isFavorite: false,
-      nextReviewAt: DateTime.now(),
-      createdAt: DateTime.now().subtract(const Duration(hours: 5)),
-    ),
-    VocabularyItem(
-      id: 'v4',
-      word: 'coffee',
-      translation: 'coffee',
-      definition: 'A hot drink made from roasted beans.',
-      example: 'I would like some coffee.',
-      pronunciation: 'KAW-fee',
-      sourceLanguage: 'en',
-      targetLanguage: 'en',
-      isFavorite: true,
-      nextReviewAt: DateTime.now(),
-      createdAt: DateTime.now(),
-    ),
-  ];
+  static List<VocabularyItem> get vocabulary => VocabDeck.words;
 
   static final notifications = <AppNotification>[
     AppNotification(
       id: 'n1',
-      title: 'Friend request',
-      body: 'Sophie Dubois wants to connect',
-      type: 'friend_request',
+      title: 'Time to review',
+      body: 'You have words due for spaced repetition.',
+      type: 'vocabulary',
       createdAt: DateTime.now().subtract(const Duration(minutes: 20)),
     ),
     AppNotification(
       id: 'n2',
       title: 'Daily goal reminder',
-      body: 'You are 40% toward today’s goal. Keep going!',
+      body: 'Keep your streak alive — review a few words today.',
       type: 'daily_goal',
       createdAt: DateTime.now().subtract(const Duration(hours: 1)),
       isRead: true,
     ),
-    AppNotification(
-      id: 'n3',
-      title: 'Vocabulary review',
-      body: '3 words are due for review',
-      type: 'vocabulary',
-      createdAt: DateTime.now().subtract(const Duration(hours: 3)),
-    ),
   ];
 
   static const aiSuggestions = [
-    'Practice ordering food in Spanish',
+    'Review 10 due words',
     '5-minute pronunciation drill',
-    'Travel English: airport phrases',
-    'Grammar: ser vs estar',
+    'Play Match Meaning',
+    'Learn 5 new Food words',
   ];
 }

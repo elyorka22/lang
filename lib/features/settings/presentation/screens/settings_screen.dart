@@ -128,16 +128,11 @@ class SettingsScreen extends ConsumerWidget {
               title: Text(s.deviceSessions),
               onTap: () {},
             ),
-            ListTile(
-              leading: const Icon(Icons.block_outlined),
-              title: Text(s.blockedUsers),
-              onTap: () {},
-            ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.workspace_premium_outlined),
               title: Text(s.premium),
-              onTap: () => context.push('/premium'),
+              onTap: () => context.showSnack('Premium coming soon'),
             ),
             ListTile(
               leading: const Icon(Icons.info_outline),

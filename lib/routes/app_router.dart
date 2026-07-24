@@ -8,34 +8,18 @@ import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/onboarding_screen.dart';
 import '../features/auth/presentation/screens/register_screen.dart';
 import '../features/auth/presentation/screens/welcome_screen.dart';
-import '../features/ai/presentation/screens/ai_screen.dart';
-import '../features/ai/presentation/screens/voice_analysis_screen.dart';
-import '../features/chat/presentation/screens/chat_room_screen.dart';
-import '../features/chat/presentation/screens/chats_screen.dart';
-import '../features/chat/presentation/screens/create_group_screen.dart';
-import '../features/chat/presentation/screens/group_info_screen.dart';
-import '../features/discover/presentation/screens/discover_screen.dart';
 import '../features/games/presentation/screens/games_hub_screen.dart';
-import '../features/games/presentation/screens/picture_words_levels_screen.dart';
-import '../features/games/presentation/screens/picture_words_play_screen.dart';
-import '../features/games/presentation/screens/quest_chat_screen.dart';
-import '../features/games/presentation/screens/quest_levels_screen.dart';
-import '../features/goal_map/presentation/screens/goal_map_screen.dart';
+import '../features/games/presentation/screens/image_word_screen.dart';
+import '../features/games/presentation/screens/match_meaning_screen.dart';
+import '../features/games/presentation/screens/memory_cards_screen.dart';
+import '../features/games/presentation/screens/word_builder_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
-import '../features/learning/presentation/screens/learning_screen.dart';
-import '../features/memorizer/presentation/screens/memorizer_screen.dart';
 import '../features/notifications/presentation/screens/notifications_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
-import '../features/rooms/presentation/screens/mafia_room_screen.dart';
-import '../features/rooms/presentation/screens/rooms_hub_screen.dart';
 import '../features/settings/presentation/screens/settings_screen.dart';
-import '../features/social/presentation/screens/host_table_screen.dart';
-import '../features/social/presentation/screens/mentors_screen.dart';
-import '../features/social/presentation/screens/room_detail_screen.dart';
-import '../features/social/presentation/screens/social_hub_screen.dart';
 import '../features/vocabulary/presentation/screens/flashcards_screen.dart';
-import '../shared/models/social_models.dart';
 import '../features/vocabulary/presentation/screens/vocabulary_screen.dart';
+import '../features/vocabulary/presentation/screens/word_detail_screen.dart';
 import '../shared/widgets/app_shell.dart';
 
 final _rootKey = GlobalKey<NavigatorState>();
@@ -60,7 +44,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         return '/welcome';
       }
       if (status == AuthStatus.authenticated &&
-          (loc == '/welcome' || loc.startsWith('/auth/login') || loc.startsWith('/auth/register'))) {
+          (loc == '/welcome' ||
+              loc.startsWith('/auth/login') ||
+              loc.startsWith('/auth/register'))) {
         return '/home';
       }
       return null;
@@ -102,24 +88,50 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/chats',
-                builder: (_, __) => const ChatsScreen(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/ai',
-                builder: (_, __) => const AiScreen(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/vocabulary',
+                path: '/words',
                 builder: (_, __) => const VocabularyScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    builder: (_, state) => WordDetailScreen(
+                      wordId: state.pathParameters['id']!,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/practice',
+                builder: (_, __) => const FlashcardsScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/games',
+                builder: (_, __) => const GamesHubScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'match-meaning',
+                    builder: (_, __) => const MatchMeaningScreen(),
+                  ),
+                  GoRoute(
+                    path: 'image-word',
+                    builder: (_, __) => const ImageWordScreen(),
+                  ),
+                  GoRoute(
+                    path: 'word-builder',
+                    builder: (_, __) => const WordBuilderScreen(),
+                  ),
+                  GoRoute(
+                    path: 'memory-cards',
+                    builder: (_, __) => const MemoryCardsScreen(),
+                  ),
+                ],
               ),
             ],
           ),
@@ -134,125 +146,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(
-        path: '/rooms',
-        builder: (_, __) => const RoomsHubScreen(),
-        routes: [
-          GoRoute(
-            path: 'inbox',
-            redirect: (_, __) => '/chats',
-          ),
-          GoRoute(
-            path: 'games/mafia/create',
-            builder: (_, __) => const CreateMafiaRoomScreen(),
-          ),
-          GoRoute(
-            path: 'games/mafia/:id',
-            builder: (_, state) => MafiaRoomScreen(
-              roomId: state.pathParameters['id']!,
-            ),
-          ),
-        ],
-      ),
-      GoRoute(
-        path: '/goal-map',
-        builder: (_, __) => const GoalMapScreen(),
-      ),
-      GoRoute(
-        path: '/discover',
-        builder: (_, __) => const DiscoverScreen(),
-      ),
-      GoRoute(
-        path: '/saves',
-        builder: (_, __) => const MemorizerScreen(),
-      ),
-      GoRoute(
-        path: '/games',
-        builder: (_, __) => const GamesHubScreen(),
-      ),
-      GoRoute(
-        path: '/games/flashcards',
-        builder: (_, __) => const FlashcardsScreen(),
-      ),
-      GoRoute(
-        path: '/games/quests',
-        builder: (_, __) => const QuestLevelsScreen(),
-      ),
-      GoRoute(
-        path: '/games/quests/:id',
-        builder: (_, state) => QuestChatScreen(
-          questId: state.pathParameters['id']!,
-        ),
-      ),
-      GoRoute(
-        path: '/games/picture-words',
-        builder: (_, __) => const PictureWordsLevelsScreen(),
-      ),
-      GoRoute(
-        path: '/games/picture-words/:id',
-        builder: (_, state) => PictureWordsPlayScreen(
-          levelId: state.pathParameters['id']!,
-        ),
-      ),
-      GoRoute(
-        path: '/social',
-        builder: (_, __) => const SocialHubScreen(),
-      ),
-      GoRoute(
-        path: '/social/host',
-        builder: (_, state) {
-          final topicName = state.uri.queryParameters['topic'];
-          RoomTopic? topic;
-          if (topicName != null) {
-            for (final t in RoomTopic.values) {
-              if (t.name == topicName) topic = t;
-            }
-          }
-          return HostTableScreen(initialTopic: topic);
-        },
-      ),
-      GoRoute(
-        path: '/social/mentors',
-        builder: (_, __) => const MentorsScreen(),
-      ),
-      GoRoute(
-        path: '/social/rooms/:id',
-        builder: (_, state) => RoomDetailScreen(
-          roomId: state.pathParameters['id']!,
-        ),
-      ),
-      GoRoute(
-        path: '/chat/:id',
-        builder: (_, state) => ChatRoomScreen(
-          conversationId: state.pathParameters['id']!,
-        ),
-      ),
-      GoRoute(
-        path: '/groups/create',
-        builder: (_, __) => const CreateGroupScreen(),
-      ),
-      GoRoute(
-        path: '/groups/:id',
-        builder: (_, state) => GroupInfoScreen(
-          groupId: state.pathParameters['id']!,
-        ),
-      ),
-      GoRoute(
         path: '/profile/edit',
         builder: (_, __) => const EditProfileScreen(),
-      ),
-      GoRoute(
-        path: '/users/:id',
-        builder: (_, state) => ProfileScreen(
-          userId: state.pathParameters['id'],
-        ),
-      ),
-      GoRoute(
-        path: '/vocabulary/flashcards',
-        redirect: (_, __) => '/games/flashcards',
-      ),
-      GoRoute(
-        path: '/ai/voice',
-        builder: (_, __) => const VoiceAnalysisScreen(),
       ),
       GoRoute(
         path: '/notifications',
@@ -262,19 +157,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/settings',
         builder: (_, __) => const SettingsScreen(),
       ),
-      GoRoute(
-        path: '/learning',
-        builder: (_, __) => const LearningScreen(),
-      ),
-      GoRoute(
-        path: '/premium',
-        builder: (_, __) => const PremiumScreen(),
-      ),
+      // Legacy redirects
+      GoRoute(path: '/vocabulary', redirect: (_, __) => '/words'),
+      GoRoute(path: '/chats', redirect: (_, __) => '/home'),
+      GoRoute(path: '/ai', redirect: (_, __) => '/practice'),
+      GoRoute(path: '/games/flashcards', redirect: (_, __) => '/practice'),
     ],
   );
 });
 
-/// Bridges Riverpod auth changes into GoRouter refresh.
 class AuthRefresh extends ChangeNotifier {
   AuthRefresh(this._ref) {
     _ref.listen<AuthState>(authControllerProvider, (_, __) {

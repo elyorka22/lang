@@ -12,8 +12,48 @@ class AppStrings {
     'navChats': 'Chats',
     'navAi': 'AI',
     'navVocab': 'Vocabulary',
+    'navWords': 'Words',
+    'navPractice': 'Practice',
+    'navGames': 'Games',
     'navRooms': 'Rooms',
     'navProfile': 'Profile',
+    'searchWords': 'Search words',
+    'wordsLearnedToday': '{n} new words today',
+    'wordsToReview': 'To review',
+    'reviewDue': 'Review {n} due',
+    'weeklyProgress': 'Weekly progress',
+    'accuracy': 'Accuracy',
+    'srsNew': 'New',
+    'srsLearning': 'Learning',
+    'srsReview': 'Review',
+    'srsMastered': 'Mastered',
+    'definition': 'Definition',
+    'exampleSentence': 'Example',
+    'synonyms': 'Synonyms',
+    'antonyms': 'Antonyms',
+    'collocations': 'Collocations',
+    'verbForms': 'Verb forms',
+    'addToDeck': 'Add to deck',
+    'addedToDeck': 'Added to your deck',
+    'sessionComplete': 'Session complete!',
+    'noWordsDue': 'Nothing due right now. Great job!',
+    'practiceAnyway': 'Practice 10 words',
+    'restart': 'Restart',
+    'tapToFlip': 'Tap to flip',
+    'again': 'Again',
+    'good': 'Good',
+    'score': 'Score',
+    'done': 'Done',
+    'reset': 'Reset',
+    'gameMatchMeaning': 'Match Word → Meaning',
+    'gameMatchMeaningHint': 'Pair English words with translations',
+    'gameImageWord': 'Match Image → Word',
+    'gameImageWordHint': 'Choose the word for each prompt',
+    'gameWordBuilder': 'Word Builder',
+    'gameWordBuilderHint': 'Unscramble the letters',
+    'gameMemoryCards': 'Memory Cards',
+    'gameMemoryCardsHint': 'Flip and match pairs',
+    'quickActions': 'Quick actions',
     'startPracticing': 'START PRACTICING NOW',
     'findPartner': 'Find Partner',
     'joinVoiceRoom': 'Join Voice Room',
@@ -43,7 +83,7 @@ class AppStrings {
     'roleplay': 'Roleplay',
     'aiTutor': 'AI Tutor',
     'noWordsYet': 'No words yet',
-    'noWordsHint': 'Save words from chats or AI lessons',
+    'noWordsHint': 'Browse the deck or clear your search filters',
     'thinking': 'Thinking…',
     'askAnything': 'Ask anything about languages…',
     'nativeLang': 'Native',
@@ -123,7 +163,7 @@ class AppStrings {
     'open': 'Open',
     'dueCount': '{n} due',
     'practiceByPlaying': 'Practice by playing',
-    'gamesHubHint': 'Flashcards, AI quests, and picture word challenges.',
+    'gamesHubHint': 'Four vocab games: match, images, builder, memory.',
     'play': 'Play',
     'levels': 'Levels',
     'alsoAvailable': 'Also available',
@@ -214,8 +254,48 @@ class AppStrings {
     'navChats': 'Чаты',
     'navAi': 'ИИ',
     'navVocab': 'Словарь',
+    'navWords': 'Слова',
+    'navPractice': 'Практика',
+    'navGames': 'Игры',
     'navRooms': 'Комнаты',
     'navProfile': 'Профиль',
+    'searchWords': 'Поиск слов',
+    'wordsLearnedToday': '{n} новых слов сегодня',
+    'wordsToReview': 'К повторению',
+    'reviewDue': 'Повторить {n}',
+    'weeklyProgress': 'Прогресс за неделю',
+    'accuracy': 'Точность',
+    'srsNew': 'Новые',
+    'srsLearning': 'Изучение',
+    'srsReview': 'Повтор',
+    'srsMastered': 'Выучено',
+    'definition': 'Определение',
+    'exampleSentence': 'Пример',
+    'synonyms': 'Синонимы',
+    'antonyms': 'Антонимы',
+    'collocations': 'Коллокации',
+    'verbForms': 'Формы глагола',
+    'addToDeck': 'В колоду',
+    'addedToDeck': 'Добавлено в колоду',
+    'sessionComplete': 'Сессия завершена!',
+    'noWordsDue': 'Сейчас нечего повторять.',
+    'practiceAnyway': 'Практиковать 10 слов',
+    'restart': 'Заново',
+    'tapToFlip': 'Нажмите, чтобы перевернуть',
+    'again': 'Снова',
+    'good': 'Хорошо',
+    'score': 'Счёт',
+    'done': 'Готово',
+    'reset': 'Сброс',
+    'gameMatchMeaning': 'Слово → Значение',
+    'gameMatchMeaningHint': 'Соедините слова и переводы',
+    'gameImageWord': 'Образ → Слово',
+    'gameImageWordHint': 'Выберите слово по подсказке',
+    'gameWordBuilder': 'Сборщик слов',
+    'gameWordBuilderHint': 'Соберите буквы',
+    'gameMemoryCards': 'Карточки памяти',
+    'gameMemoryCardsHint': 'Найдите пары',
+    'quickActions': 'Быстрые действия',
     'startPracticing': 'НАЧАТЬ ПРАКТИКУ',
     'findPartner': 'Найти партнёра',
     'joinVoiceRoom': 'Голосовая комната',
@@ -245,7 +325,7 @@ class AppStrings {
     'roleplay': 'Ролевая игра',
     'aiTutor': 'ИИ-репетитор',
     'noWordsYet': 'Пока нет слов',
-    'noWordsHint': 'Сохраняйте слова из чатов или уроков ИИ',
+    'noWordsHint': 'Откройте колоду или сбросьте фильтры поиска',
     'thinking': 'Думаю…',
     'askAnything': 'Спросите что угодно о языках…',
     'nativeLang': 'Родной',
@@ -325,7 +405,7 @@ class AppStrings {
     'open': 'Открыть',
     'dueCount': '{n} к повтору',
     'practiceByPlaying': 'Учись в игре',
-    'gamesHubHint': 'Карточки, AI-квесты и слова по картинкам.',
+    'gamesHubHint': 'Четыре игры: пары, картинки, конструктор, память.',
     'play': 'Играть',
     'levels': 'Уровни',
     'alsoAvailable': 'Также доступно',
@@ -416,8 +496,48 @@ class AppStrings {
     'navChats': 'Chatlar',
     'navAi': 'AI',
     'navVocab': 'Lug‘at',
+    'navWords': 'So‘zlar',
+    'navPractice': 'Mashq',
+    'navGames': 'O‘yinlar',
     'navRooms': 'Xonalar',
     'navProfile': 'Profil',
+    'searchWords': 'So‘z qidirish',
+    'wordsLearnedToday': 'Bugun {n} yangi so‘z',
+    'wordsToReview': 'Takrorlash',
+    'reviewDue': '{n} ta takrorlash',
+    'weeklyProgress': 'Haftalik progress',
+    'accuracy': 'Aniqlik',
+    'srsNew': 'Yangi',
+    'srsLearning': 'O‘rganilmoqda',
+    'srsReview': 'Takror',
+    'srsMastered': 'O‘zlashtirilgan',
+    'definition': 'Ta’rif',
+    'exampleSentence': 'Misol',
+    'synonyms': 'Sinonimlar',
+    'antonyms': 'Antonımlar',
+    'collocations': 'Birikmalar',
+    'verbForms': 'Fe’l shakllari',
+    'addToDeck': 'Daftarga qo‘shish',
+    'addedToDeck': 'Daftarga qo‘shildi',
+    'sessionComplete': 'Sessiya tugadi!',
+    'noWordsDue': 'Hozircha takrorlash yo‘q.',
+    'practiceAnyway': '10 so‘z mashq qilish',
+    'restart': 'Qayta boshlash',
+    'tapToFlip': 'O‘girish uchun bosing',
+    'again': 'Yana',
+    'good': 'Yaxshi',
+    'score': 'Ball',
+    'done': 'Tayyor',
+    'reset': 'Tozalash',
+    'gameMatchMeaning': 'So‘z → Ma’no',
+    'gameMatchMeaningHint': 'So‘z va tarjimani bog‘lang',
+    'gameImageWord': 'Rasm → So‘z',
+    'gameImageWordHint': 'To‘g‘ri so‘zni tanlang',
+    'gameWordBuilder': 'So‘z yig‘ish',
+    'gameWordBuilderHint': 'Harflarni joylashtiring',
+    'gameMemoryCards': 'Xotira kartalari',
+    'gameMemoryCardsHint': 'Juftlarni toping',
+    'quickActions': 'Tezkor amallar',
     'startPracticing': 'HOZIR MASHQ QILING',
     'findPartner': 'Hamkor topish',
     'joinVoiceRoom': 'Ovozli xona',
@@ -447,7 +567,7 @@ class AppStrings {
     'roleplay': 'Rolli o‘yin',
     'aiTutor': 'AI o‘qituvchi',
     'noWordsYet': 'Hali so‘zlar yo‘q',
-    'noWordsHint': 'Chat yoki AI darsidan so‘z saqlang',
+    'noWordsHint': 'Daftarni oching yoki qidiruv filtrlarini tozalang',
     'thinking': 'O‘ylayapman…',
     'askAnything': 'Tillar haqida so‘rang…',
     'nativeLang': 'Ona tili',
@@ -527,7 +647,7 @@ class AppStrings {
     'open': 'Ochish',
     'dueCount': '{n} takrorlash',
     'practiceByPlaying': 'O‘ynab o‘rganing',
-    'gamesHubHint': 'Kartochkalar, AI kvestlar va rasm so‘zlari.',
+    'gamesHubHint': 'To‘rt o‘yin: juftlash, rasm, quruvchi, xotira.',
     'play': 'O‘ynash',
     'levels': 'Darajalar',
     'alsoAvailable': 'Yana mavjud',
@@ -638,8 +758,48 @@ class AppStrings {
   String get navChats => t('navChats');
   String get navAi => t('navAi');
   String get navVocab => t('navVocab');
+  String get navWords => t('navWords');
+  String get navPractice => t('navPractice');
+  String get navGames => t('navGames');
   String get navRooms => t('navRooms');
   String get navProfile => t('navProfile');
+  String get searchWords => t('searchWords');
+  String wordsLearnedToday(int n) => t('wordsLearnedToday', {'n': '$n'});
+  String get wordsToReview => t('wordsToReview');
+  String reviewDue(int n) => t('reviewDue', {'n': '$n'});
+  String get weeklyProgress => t('weeklyProgress');
+  String get accuracy => t('accuracy');
+  String get srsNew => t('srsNew');
+  String get srsLearning => t('srsLearning');
+  String get srsReview => t('srsReview');
+  String get srsMastered => t('srsMastered');
+  String get definition => t('definition');
+  String get exampleSentence => t('exampleSentence');
+  String get synonyms => t('synonyms');
+  String get antonyms => t('antonyms');
+  String get collocations => t('collocations');
+  String get verbForms => t('verbForms');
+  String get addToDeck => t('addToDeck');
+  String get addedToDeck => t('addedToDeck');
+  String get sessionComplete => t('sessionComplete');
+  String get noWordsDue => t('noWordsDue');
+  String get practiceAnyway => t('practiceAnyway');
+  String get restart => t('restart');
+  String get tapToFlip => t('tapToFlip');
+  String get again => t('again');
+  String get good => t('good');
+  String get score => t('score');
+  String get done => t('done');
+  String get reset => t('reset');
+  String get gameMatchMeaning => t('gameMatchMeaning');
+  String get gameMatchMeaningHint => t('gameMatchMeaningHint');
+  String get gameImageWord => t('gameImageWord');
+  String get gameImageWordHint => t('gameImageWordHint');
+  String get gameWordBuilder => t('gameWordBuilder');
+  String get gameWordBuilderHint => t('gameWordBuilderHint');
+  String get gameMemoryCards => t('gameMemoryCards');
+  String get gameMemoryCardsHint => t('gameMemoryCardsHint');
+  String get quickActions => t('quickActions');
   String get startPracticing => t('startPracticing');
   String get findPartner => t('findPartner');
   String get joinVoiceRoom => t('joinVoiceRoom');

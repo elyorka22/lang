@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions.dart';
+import '../../../../shared/models/vocabulary_item.dart';
+import '../../../../shared/providers/locale_provider.dart';
+import '../../../../shared/widgets/empty_state.dart';
 import '../../../pronunciation/application/pronunciation_controller.dart';
 import '../../../pronunciation/presentation/widgets/pronunciation_checker_panel.dart';
 import '../../application/vocabulary_controller.dart';
@@ -18,14 +21,27 @@ class FlashcardsScreen extends ConsumerStatefulWidget {
 class _FlashcardsScreenState extends ConsumerState<FlashcardsScreen> {
   int _index = 0;
   bool _flipped = false;
+  List<VocabularyItem> _queue = const [];
 
-  String _practiceText(String word, String translation, String example) {
-    if (_flipped && example.trim().isNotEmpty) return example.trim();
-    if (_flipped) return translation.trim();
-    return word.trim();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final due = ref.read(vocabularyProvider).dueQueue;
+    if (_queue.isEmpty && due.isNotEmpty) {
+      _queue = List.of(due);
+    }
   }
 
-  void _nextCard(int total) {
+  void _refreshQueue() {
+    _queue = List.of(ref.read(vocabularyProvider).dueQueue);
+    _index = 0;
+    _flipped = false;
+  }
+
+  void _grade(ReviewGrade grade) {
+    if (_index >= _queue.length) return;
+    final item = _queue[_index];
+    ref.read(vocabularyProvider.notifier).review(item.id, grade);
     ref.read(pronunciationControllerProvider.notifier).reset();
     setState(() {
       _index++;
@@ -35,17 +51,52 @@ class _FlashcardsScreenState extends ConsumerState<FlashcardsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final items = ref.watch(vocabularyProvider);
+    final s = ref.watch(appStringsProvider);
+    final vocab = ref.watch(vocabularyProvider);
 
-    if (items.isEmpty) {
+    ref.listen<PronunciationState>(pronunciationControllerProvider, (prev, next) {
+      if (next.status != PronunciationStatus.done) return;
+      final score = next.result?.score;
+      if (score == null) return;
+      if (prev?.result?.score == score &&
+          prev?.status == PronunciationStatus.done) {
+        return;
+      }
+      ref.read(vocabularyProvider.notifier).recordPronunciationScore(score);
+    });
+
+    if (vocab.isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (_queue.isEmpty) {
+      _queue = List.of(vocab.dueQueue);
+    }
+
+    if (_queue.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Flashcards')),
-        body: const Center(child: Text('Nothing to review')),
+        appBar: AppBar(title: Text(s.navPractice)),
+        body: EmptyState(
+          icon: Icons.check_circle_outline,
+          title: s.sessionComplete,
+          subtitle: s.noWordsDue,
+          action: FilledButton(
+            onPressed: () {
+              setState(() {
+                _queue = List.of(vocab.deck.take(10));
+                _index = 0;
+                _flipped = false;
+              });
+            },
+            child: Text(s.practiceAnyway),
+          ),
+        ),
       );
     }
-    if (_index >= items.length) {
+
+    if (_index >= _queue.length) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Flashcards')),
+        appBar: AppBar(title: Text(s.navPractice)),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -56,20 +107,14 @@ class _FlashcardsScreenState extends ConsumerState<FlashcardsScreen> {
                 color: AppColors.xpGold,
               ),
               const SizedBox(height: 12),
-              Text(
-                'Session complete!',
-                style: context.textTheme.headlineSmall,
-              ),
+              Text(s.sessionComplete, style: context.textTheme.headlineSmall),
               const SizedBox(height: 16),
               FilledButton(
                 onPressed: () {
                   ref.read(pronunciationControllerProvider.notifier).reset();
-                  setState(() {
-                    _index = 0;
-                    _flipped = false;
-                  });
+                  setState(_refreshQueue);
                 },
-                child: const Text('Restart'),
+                child: Text(s.restart),
               ),
             ],
           ),
@@ -77,13 +122,15 @@ class _FlashcardsScreenState extends ConsumerState<FlashcardsScreen> {
       );
     }
 
-    final item = items[_index];
+    final item = _queue[_index];
     final practiceText =
-        _practiceText(item.word, item.translation, item.example);
+        _flipped && item.example.trim().isNotEmpty
+            ? item.example.trim()
+            : (_flipped ? item.translation : item.word);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Card ${_index + 1}/${items.length}'),
+        title: Text('${s.navPractice} ${_index + 1}/${_queue.length}'),
       ),
       body: SafeArea(
         child: Padding(
@@ -91,7 +138,7 @@ class _FlashcardsScreenState extends ConsumerState<FlashcardsScreen> {
             AppSpacing.lg,
             AppSpacing.md,
             AppSpacing.lg,
-            AppSpacing.md,
+            AppSpacing.lg,
           ),
           child: Column(
             children: [
@@ -135,9 +182,9 @@ class _FlashcardsScreenState extends ConsumerState<FlashcardsScreen> {
                               Text(
                                 _flipped
                                     ? item.definition
-                                    : (item.pronunciation.isEmpty
-                                        ? 'Tap to flip'
-                                        : item.pronunciation),
+                                    : (item.ipa.isEmpty
+                                        ? s.tapToFlip
+                                        : item.ipa),
                                 textAlign: TextAlign.center,
                                 style: context.textTheme.bodyLarge?.copyWith(
                                   color: AppColors.textSecondary,
@@ -159,7 +206,7 @@ class _FlashcardsScreenState extends ConsumerState<FlashcardsScreen> {
                       PronunciationCheckerPanel(
                         key: ValueKey('${item.id}-$_flipped'),
                         expectedText: practiceText,
-                        localeId: item.sourceLanguage,
+                        localeId: 'en',
                       ),
                     ],
                   ),
@@ -170,25 +217,32 @@ class _FlashcardsScreenState extends ConsumerState<FlashcardsScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () {
-                        ref
-                            .read(vocabularyProvider.notifier)
-                            .review(item.id, remembered: false);
-                        _nextCard(items.length);
-                      },
-                      child: const Text('Again'),
+                      onPressed: () => _grade(ReviewGrade.again),
+                      child: Text(s.again),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => _grade(ReviewGrade.hard),
+                      child: Text(s.hard),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: FilledButton(
-                      onPressed: () {
-                        ref
-                            .read(vocabularyProvider.notifier)
-                            .review(item.id, remembered: true);
-                        _nextCard(items.length);
-                      },
-                      child: const Text('Got it'),
+                      onPressed: () => _grade(ReviewGrade.good),
+                      child: Text(s.good),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () => _grade(ReviewGrade.easy),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.success,
+                      ),
+                      child: Text(s.easy),
                     ),
                   ),
                 ],

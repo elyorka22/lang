@@ -83,3 +83,11 @@ app.*.map.json
 **/GoogleService-Info.plist
 *.pem
 *.p12
+
+# Local tooling
+.tools/
+.flutter-sdk/
+
+
+# Local tooling (Flutter SDK downloads)
+.tools/

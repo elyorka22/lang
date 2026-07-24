@@ -2,36 +2,21 @@ import 'package:equatable/equatable.dart';
 
 class DailyGoal extends Equatable {
   const DailyGoal({
-    this.minutesTarget = 15,
-    this.minutesDone = 0,
-    this.messagesTarget = 10,
-    this.messagesDone = 0,
-    this.voiceTarget = 3,
-    this.voiceDone = 0,
-    this.wordsTarget = 5,
+    this.wordsTarget = 10,
     this.wordsDone = 0,
-    this.aiLessonsTarget = 1,
-    this.aiLessonsDone = 0,
+    this.reviewsTarget = 15,
+    this.reviewsDone = 0,
   });
 
-  final int minutesTarget;
-  final int minutesDone;
-  final int messagesTarget;
-  final int messagesDone;
-  final int voiceTarget;
-  final int voiceDone;
   final int wordsTarget;
   final int wordsDone;
-  final int aiLessonsTarget;
-  final int aiLessonsDone;
+  final int reviewsTarget;
+  final int reviewsDone;
 
   double get overallProgress {
     final parts = [
-      minutesDone / minutesTarget,
-      messagesDone / messagesTarget,
-      voiceDone / voiceTarget,
       wordsDone / wordsTarget,
-      aiLessonsDone / aiLessonsTarget,
+      reviewsDone / reviewsTarget,
     ];
     final avg = parts.map((e) => e.clamp(0.0, 1.0)).reduce((a, b) => a + b) /
         parts.length;
@@ -41,13 +26,7 @@ class DailyGoal extends Equatable {
   bool get isComplete => overallProgress >= 1.0;
 
   @override
-  List<Object?> get props => [
-        minutesDone,
-        messagesDone,
-        voiceDone,
-        wordsDone,
-        aiLessonsDone,
-      ];
+  List<Object?> get props => [wordsDone, reviewsDone];
 }
 
 class LearningStats extends Equatable {

@@ -3,7 +3,7 @@ class AppConstants {
   AppConstants._();
 
   static const String appName = 'Lingua';
-  static const String appTagline = 'Speak. Connect. Grow.';
+  static const String appTagline = 'Learn. Remember. Pronounce.';
   static const String appVersion = '1.0.0';
 
   /// NestJS API base URL — replace with your backend endpoint.

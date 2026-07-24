@@ -3,9 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
 import '../providers/locale_provider.dart';
 
-/// Bottom navigation — Home · Chats · AI · Vocabulary · Profile.
+/// Bottom navigation — Home · Words · Practice · Games · Profile.
 class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.navigationShell});
 
@@ -52,21 +53,21 @@ class AppShell extends ConsumerWidget {
               ),
               _dest(
                 selected: index == 1,
-                label: s.navChats,
-                icon: Icons.chat_bubble_outline_rounded,
-                selectedIcon: Icons.chat_bubble_rounded,
+                label: s.navWords,
+                icon: Icons.menu_book_outlined,
+                selectedIcon: Icons.menu_book_rounded,
               ),
               _dest(
                 selected: index == 2,
-                label: s.navAi,
-                icon: Icons.auto_awesome_outlined,
-                selectedIcon: Icons.auto_awesome,
+                label: s.navPractice,
+                icon: Icons.style_outlined,
+                selectedIcon: Icons.style_rounded,
               ),
               _dest(
                 selected: index == 3,
-                label: s.navVocab,
-                icon: Icons.menu_book_outlined,
-                selectedIcon: Icons.menu_book_rounded,
+                label: s.navGames,
+                icon: Icons.sports_esports_outlined,
+                selectedIcon: Icons.sports_esports_rounded,
               ),
               _dest(
                 selected: index == 4,

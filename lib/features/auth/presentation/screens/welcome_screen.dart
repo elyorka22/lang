@@ -47,7 +47,7 @@ class WelcomeScreen extends ConsumerWidget {
               ).animate().fadeIn(delay: 180.ms),
               const SizedBox(height: AppSpacing.md),
               Text(
-                'Meet native speakers, chat like Telegram,\nand learn with an AI tutor.',
+                'Learn English words.\nRemember them forever.\nPractice pronunciation.',
                 style: context.textTheme.bodyMedium?.copyWith(
                   color: AppColors.textTertiary,
                 ),

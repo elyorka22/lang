@@ -20,27 +20,29 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final _page = PageController();
   int _index = 0;
   String? _native;
-  String? _learning;
   String? _level;
   final _interests = <String>{};
 
   static const _levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
   static const _interestOptions = [
     'Travel',
-    'Music',
-    'Movies',
-    'Sports',
-    'Tech',
-    'Food',
-    'Art',
-    'Books',
     'Business',
-    'Gaming',
+    'Technology',
+    'Food',
+    'Medical',
+    'Animals',
+    'General',
   ];
 
   Future<void> _finish() async {
     await ref.read(localStorageProvider).setOnboardingSeen();
     if (mounted) context.go('/home');
+  }
+
+  @override
+  void dispose() {
+    _page.dispose();
+    super.dispose();
   }
 
   @override
@@ -75,16 +77,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 onPageChanged: (i) => setState(() => _index = i),
                 children: [
                   _langStep(
-                    title: 'What is your native language?',
+                    title: 'What language do you speak natively?',
                     selected: _native,
                     onSelect: (v) => setState(() => _native = v),
                   ),
-                  _langStep(
-                    title: 'Which language are you learning?',
-                    selected: _learning,
-                    onSelect: (v) => setState(() => _learning = v),
-                    showLevels: true,
-                  ),
+                  _levelStep(),
                   _interestsStep(),
                 ],
               ),
@@ -95,9 +92,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 label: _index == 2 ? 'Start learning' : 'Continue',
                 onPressed: () {
                   if (_index == 0 && _native == null) return;
-                  if (_index == 1 && (_learning == null || _level == null)) {
-                    return;
-                  }
+                  if (_index == 1 && _level == null) return;
                   if (_index < 2) {
                     _page.nextPage(
                       duration: const Duration(milliseconds: 280),
@@ -119,7 +114,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     required String title,
     required String? selected,
     required ValueChanged<String> onSelect,
-    bool showLevels = false,
   }) {
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -143,24 +137,32 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             );
           }).toList(),
         ),
-        if (showLevels) ...[
-          const SizedBox(height: AppSpacing.xl),
-          Text('Your level', style: context.textTheme.titleMedium),
-          const SizedBox(height: AppSpacing.sm),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _levels.map((l) {
-              final active = _level == l;
-              return ChoiceChip(
-                label: Text(l),
-                selected: active,
-                onSelected: (_) => setState(() => _level = l),
-                selectedColor: AppColors.primarySurface,
-              );
-            }).toList(),
-          ),
-        ],
+      ],
+    );
+  }
+
+  Widget _levelStep() {
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      children: [
+        Text(
+          'You are learning English — pick your level',
+          style: context.textTheme.headlineSmall,
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: _levels.map((l) {
+            final active = _level == l;
+            return ChoiceChip(
+              label: Text(l),
+              selected: active,
+              onSelected: (_) => setState(() => _level = l),
+              selectedColor: AppColors.primarySurface,
+            );
+          }).toList(),
+        ),
       ],
     );
   }
@@ -169,10 +171,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
-        Text('What are you into?', style: context.textTheme.headlineSmall),
+        Text(
+          'Which word topics interest you?',
+          style: context.textTheme.headlineSmall,
+        ),
         const SizedBox(height: AppSpacing.xs),
         Text(
-          'We will recommend better language partners',
+          'We will prioritize these categories in your deck',
           style: context.textTheme.bodyMedium,
         ),
         const SizedBox(height: AppSpacing.lg),
